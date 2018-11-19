@@ -1,7 +1,6 @@
 /**
  * Run the following example to perform a recursive crawl of a website using Puppeteer.
  */
-
 const Apify = require('apify');
 
 const { sleep } = Apify.utils;
@@ -151,8 +150,10 @@ Apify.main(async () => {
     const crawler = new Apify.PuppeteerCrawler({
         launchPuppeteerOptions: {
             useApifyProxy: true,
+            apifyProxyGroups: ['CZECH_LUMINATI'],
         },
         requestQueue,
+        handlePageTimeoutSecs: 1200,
         handlePageFunction: async ({ request, page }) => {
             const { label } = request.userData;
             if (label === 'startUrl') {
