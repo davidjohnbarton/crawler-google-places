@@ -175,9 +175,9 @@ Apify.main(async () => {
                     await sleep(5000);
                 }
             } else {
+                // Get data from review
                 await injectJQuery(page);
                 await page.waitForSelector('h1.section-hero-header-title');
-                // Get data from review
                 const placeDetail = await page.evaluate(() => {
                     return {
                         title: $('h1.section-hero-header-title').text().trim(),
@@ -205,7 +205,7 @@ Apify.main(async () => {
                         const $review = $(reviewEl);
                         return {
                             name: $review.find('.section-review-title').text().trim(),
-                            text: $review.find('section-review-text').text(),
+                            text: $review.find('.section-review-text').text(),
                             stars: $review.find('.section-review-stars').attr('aria-label'),
                             publishAt: $review.find('.section-review-publish-date').text().trim(),
                             likesCount: $review.find('.section-review-thumbs-up-count').text().trim(),
