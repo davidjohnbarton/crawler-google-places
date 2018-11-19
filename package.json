@@ -1,0 +1,24 @@
+{
+  "name": "crawler-google-places",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drobnikj/crawler-google-places.git"
+  },
+  "keywords": [
+    "crawler",
+    "google",
+    "places"
+  ],
+  "author": "Jakub Drobnik <drobnik.j@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/drobnikj/crawler-google-places/issues"
+  },
+  "homepage": "https://github.com/drobnikj/crawler-google-places#readme"
+}
