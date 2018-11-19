@@ -6,6 +6,8 @@ const Apify = require('apify');
 const { sleep } = Apify.utils;
 const { injectJQuery } = Apify.utils.puppeteer;
 
+const DEFAULT_TIMEOUT = 60 * 1000; // 60 sec
+
 const sleepPromised = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const logError = (msg, e) => {
@@ -151,6 +153,7 @@ Apify.main(async () => {
         launchPuppeteerOptions: {
             useApifyProxy: true,
             apifyProxyGroups: ['CZECH_LUMINATI'],
+            liveView: true,
         },
         requestQueue,
         handlePageTimeoutSecs: 1200,
@@ -163,7 +166,7 @@ Apify.main(async () => {
                 await page.click('#searchbox-searchbutton');
                 await sleep(5000);
                 while(true) {
-                    await page.waitForSelector('#section-pagination-button-next');
+                    await page.waitForSelector('#section-pagination-button-next', { timeout: DEFAULT_TIMEOUT });
                     await enqueueAllUrlsFromPagination(page, requestQueue);
                     const nextButton = await page.$('#section-pagination-button-next');
                     const isNextPagination = (await nextButton.getProperty('disabled') === 'true');
@@ -178,7 +181,7 @@ Apify.main(async () => {
             } else {
                 // Get data from review
                 await injectJQuery(page);
-                await page.waitForSelector('h1.section-hero-header-title');
+                await page.waitForSelector('h1.section-hero-header-title', { timeout: DEFAULT_TIMEOUT });
                 const placeDetail = await page.evaluate(() => {
                     return {
                         title: $('h1.section-hero-header-title').text().trim(),
