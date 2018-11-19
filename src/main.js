@@ -125,7 +125,6 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
     const detailLinks = [];
     let results = await page.$$('.section-result');
     const resultsCount = results.length;
-    console.log('Titles ', results.length);
     for (let resultIndex = 0; resultIndex < resultsCount; resultIndex++) {
         // Need to get results again, pupptr lost context..
         results = await page.$$('.section-result');
@@ -133,7 +132,6 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
         await link.click();
         await page.waitForSelector('.section-back-to-list-button');
         const url = page.url();
-        console.log(url);
         await requestQueue.addRequest({ url, userData: { label: 'detail' } });
         await page.click('.section-back-to-list-button');
         await sleep(5000);
@@ -144,7 +142,9 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
 Apify.main(async () => {
     const { searchString } = await Apify.getValue('INPUT');
 
-    if (!searchString) throw new Error('Attribute searchString missing in input.')
+    if (!searchString) throw new Error('Attribute searchString missing in input.');
+
+    console.log('Scraping Google Places for search string: ', searchString);
 
     const requestQueue = await Apify.openRequestQueue();
     await requestQueue.addRequest({ url: 'https://www.google.com/maps/search/', userData: { label: 'startUrl' } });
@@ -160,19 +160,22 @@ Apify.main(async () => {
         handlePageTimeoutSecs: 1200,
         handlePageFunction: async ({ request, page }) => {
             const { label } = request.userData;
+            console.log(`Open ${request.url} with label: ${label}`);
+
             if (label === 'startUrl') {
                 // Enqueue all urls for place detail
-                await page.type('#searchboxinput', 'Česká Spořitelna');
+                await page.type('#searchboxinput', searchString);
                 await sleep(5000);
                 await page.click('#searchbox-searchbutton');
                 await sleep(5000);
                 while(true) {
+                    const paginationText = await page.$eval('.section-pagination-right', el => el.innerText);
+                    console.log(`Added links from pagination: ${paginationText}`);
                     await page.waitForSelector('#section-pagination-button-next', { timeout: DEFAULT_TIMEOUT });
                     await enqueueAllUrlsFromPagination(page, requestQueue);
                     const nextButton = await page.$('#section-pagination-button-next');
-                    const isNextPagination = (await nextButton.getProperty('disabled') === 'true');
-                    console.log('isNextPagination ', isNextPagination);
-                    if (isNextPagination) {
+                    const isNextPaginationDisabled = (await nextButton.getProperty('disabled') === 'true');
+                    if (isNextPaginationDisabled) {
                         break;
                     } else {
                         await nextButton.click();
@@ -195,7 +198,7 @@ Apify.main(async () => {
                 });
                 placeDetail.url = request.url;
                 placeDetail.reviews = [];
-                console.log(placeDetail)
+                console.log(placeDetail);
                 // Get all reviews
                 await page.click('button.section-reviewchart-numreviews');
                 await infiniteScroll(page, 99999999999);
@@ -221,6 +224,7 @@ Apify.main(async () => {
                 }
                 await Apify.pushData(placeDetail);
             }
+            console.log('Done ', request.url);
         },
         maxConcurrency: 1,
     });
