@@ -152,8 +152,9 @@ Apify.main(async () => {
     const crawler = new Apify.PuppeteerCrawler({
         launchPuppeteerOptions: {
             useApifyProxy: true,
+            useChrome: true,
             apifyProxyGroups: ['CZECH_LUMINATI'],
-            liveView: true,
+            liveView: Apify.isAtHome(),
         },
         requestQueue,
         handlePageTimeoutSecs: 1200,

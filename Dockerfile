@@ -1,4 +1,4 @@
-FROM apify/actor-node-chrome
+FROM apify/actor-node-chrome-xvfb
 
 # Copy source code
 COPY . ./
