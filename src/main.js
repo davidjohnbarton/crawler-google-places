@@ -69,6 +69,7 @@ Apify.main(async () => {
         const browser = await Apify.launchPuppeteer(launchPuppeteerOptions);
         const page = await browser.newPage();
         await page.goto(startUrl);
+        await injectJQuery(page);
         await page.type('#searchboxinput', searchString);
         await sleep(5000);
         await page.click('#searchbox-searchbutton');
@@ -79,21 +80,24 @@ Apify.main(async () => {
             const [fromString, toString] = paginationText.match(/\d+/g);
             const from = parseInt(fromString);
             const to = parseInt(toString);
-            if (listingPagination.to && to <= listingPagination.to) {
+            if (listingPagination.from && from <= listingPagination.from) {
                 console.log(`Skiped pagination ${from} - ${to}, already done!`);
             } else {
                 console.log(`Added links from pagination ${from} - ${to}`);
                 await enqueueAllUrlsFromPagination(page, requestQueue);
+                listingPagination = { from, to };
+                await Apify.setValue(LISTING_PAGINATION_KEY, listingPagination);
             }
-            listingPagination = { from, to };
-            await Apify.setValue(LISTING_PAGINATION_KEY, listingPagination);
             await page.waitForSelector('#section-pagination-button-next', { timeout: DEFAULT_TIMEOUT });
             const nextButton = await page.$('#section-pagination-button-next');
-            const isNextPaginationDisabled = (await nextButton.getProperty('disabled') === 'true');
+            const isNextPaginationDisabled = await page.evaluate(() => {
+                return !!$('#section-pagination-button-next').attr('disabled');
+            });
             if (isNextPaginationDisabled) {
                 break;
             } else {
                 await nextButton.click();
+                await page.waitFor(() => !document.querySelector('#searchbox').classList.contains('loading'));
             }
         }
         listingPagination.isFinish = true;

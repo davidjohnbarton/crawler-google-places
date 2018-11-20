@@ -43,7 +43,7 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
             `scrollHeight=${scrollInfo.scrollHeight}, ` +
             `maxHeight=${maxHeight}`;
     };
-    const defaultScrollDelay = 2000;
+    const defaultScrollDelay = 3000;
 
     // Catch and count all pages request for resources
     const resourcesStats = {
