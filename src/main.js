@@ -56,9 +56,9 @@ Apify.main(async () => {
     let listingPagination = await Apify.getValue(LISTING_PAGINATION_KEY) || {};
 
     const launchPuppeteerOptions = {
-        useApifyProxy: true,
+        // useApifyProxy: true,
         // useChrome: true,
-        apifyProxyGroups: ['CZECH_LUMINATI'],
+        // apifyProxyGroups: ['CZECH_LUMINATI'],
         // liveView: Apify.isAtHome(),
     };
     if (proxyConfig) Object.assign(launchPuppeteerOptions, proxyConfig);
