@@ -1,0 +1,33 @@
+{
+  "title": "Crawler for Google places",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "searchString": {
+      "title": "Search",
+      "type": "string",
+      "description": "String will be search on Google maps.",
+      "prefill": "New York Gym",
+      "editor": "textfield"
+    },
+    "lat": {
+      "title": "Viewport Latitude",
+      "type": "number",
+      "description": "Use it with combination with longitude and zoom to set up viewport to search on."
+    },
+    "lng": {
+      "title": "Viewport Longitude",
+      "type": "number",
+      "description": "Use it with combination with latitude and zoom to set up viewport to search on.",
+    },
+    "zoom": {
+      "title": "Viewport Zoom",
+      "type": "number",
+      "description": "Use it with combination with longitude and latitude to set up viewport to search on.",
+      "maximum": 15
+    }
+  },
+  "required": [
+    "searchString"
+  ]
+}
