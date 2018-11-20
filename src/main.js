@@ -140,14 +140,25 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
 };
 
 Apify.main(async () => {
-    const { searchString } = await Apify.getValue('INPUT');
+    const { searchString, searchViewport } = await Apify.getValue('INPUT');
 
     if (!searchString) throw new Error('Attribute searchString missing in input.');
 
-    console.log('Scraping Google Places for search string: ', searchString);
+    console.log('Scraping Google Places for search string:', searchString);
+
+    let startUrl;
+    if (searchViewport) {
+        const { lat, lng, zoom = 10 } = searchViewport
+        if (!lat || !lng) throw new Error('You have to defined lat and lng for searchViewport!');
+        startUrl = `https://www.google.com/maps/@${lat},${lng},${zoom}z/search`;
+    } else {
+        startUrl = 'https://www.google.com/maps/search/';
+    }
+
+    console.log('Start url is ', startUrl);
 
     const requestQueue = await Apify.openRequestQueue();
-    await requestQueue.addRequest({ url: 'https://www.google.com/maps/search/', userData: { label: 'startUrl' } });
+    await requestQueue.addRequest({ url: startUrl, userData: { label: 'startUrl' } });
 
     const crawler = new Apify.PuppeteerCrawler({
         launchPuppeteerOptions: {
@@ -157,7 +168,7 @@ Apify.main(async () => {
             liveView: Apify.isAtHome(),
         },
         requestQueue,
-        handlePageTimeoutSecs: 1200,
+        handlePageTimeoutSecs: 1800, // We are adding all links to queue on startUrl
         handlePageFunction: async ({ request, page }) => {
             const { label } = request.userData;
             console.log(`Open ${request.url} with label: ${label}`);
@@ -214,7 +225,7 @@ Apify.main(async () => {
                         return {
                             name: $review.find('.section-review-title').text().trim(),
                             text: $review.find('.section-review-text').text(),
-                            stars: $review.find('.section-review-stars').attr('aria-label'),
+                            stars: $review.find('.section-review-stars').attr('aria-label').trim(),
                             publishAt: $review.find('.section-review-publish-date').text().trim(),
                             likesCount: $review.find('.section-review-thumbs-up-count').text().trim(),
                         };
@@ -226,7 +237,6 @@ Apify.main(async () => {
             }
             console.log('Done ', request.url);
         },
-        maxConcurrency: 1,
     });
 
     await crawler.run();
