@@ -30,7 +30,8 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
 };
 
 Apify.main(async () => {
-    const { searchString, lat, lng } = await Apify.getValue('INPUT');
+    const input = await Apify.getValue('INPUT');
+    const { searchString, lat, lng } = input;
 
     if (!searchString) throw new Error('Attribute searchString missing in input.');
 
@@ -73,10 +74,10 @@ Apify.main(async () => {
                 await sleep(5000);
                 await page.click('#searchbox-searchbutton');
                 await sleep(5000);
-                while(true) {
+                while (true) {
                     await page.waitForSelector('#section-pagination-button-next', { timeout: DEFAULT_TIMEOUT });
-                    const paginationText = await page.$eval('.section-pagination-right', el => el.innerText);
-                    const [fromString , toString] = paginationText.match(/\d+/g);
+                    const paginationText = await page.$eval('.section-pagination-right', (el) => el.innerText);
+                    const [fromString, toString] = paginationText.match(/\d+/g);
                     const from = parseInt(fromString);
                     const to = parseInt(toString);
                     if (listingPagination.to && to <= listingPagination.to) {
@@ -113,7 +114,7 @@ Apify.main(async () => {
                 placeDetail.reviews = [];
                 if (placeDetail.totalScore) {
                     placeDetail.reviewsCount = await page.evaluate(() => {
-                        const numberReviewsText = $('button.section-reviewchart-numreviews').text().trim()
+                        const numberReviewsText = $('button.section-reviewchart-numreviews').text().trim();
                         return (numberReviewsText) ? numberReviewsText.match(/\d+/)[0] : null;
                     });
                     // Get all reviews

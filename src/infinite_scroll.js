@@ -1,6 +1,6 @@
 const Apify = require('apify');
 
-const sleepPromised = ms => new Promise(resolve => setTimeout(resolve, ms));
+const sleepPromised = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const logError = (msg, e) => {
     console.log(`ERROR: ${msg}`);
@@ -65,7 +65,6 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
                 delete pendingRequests[msg._requestId];
                 resourcesStats.failed++;
             }
-
         }
     });
     page.on('requestfinished', (msg) => {
@@ -89,12 +88,12 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
             const now = Date.now();
             const timeout = 30000; // TODO: use resourceTimeout
             Object.keys(pendingRequests)
-            .forEach((requestId) => {
-                if (pendingRequests[requestId] + timeout < now) {
-                    delete pendingRequests[requestId];
-                    resourcesStats.forgotten++;
-                }
-            });
+                .forEach((requestId) => {
+                    if (pendingRequests[requestId] + timeout < now) {
+                        delete pendingRequests[requestId];
+                        resourcesStats.forgotten++;
+                    }
+                });
 
             logDebug(`Infinite scroll stats (${stringifyScrollInfo(scrollInfo)} resourcesStats=${JSON.stringify(resourcesStats)}).`);
 
