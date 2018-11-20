@@ -104,7 +104,7 @@ Apify.main(async () => {
     const crawler = new Apify.PuppeteerCrawler({
         launchPuppeteerOptions,
         requestQueue,
-        handlePageTimeoutSecs: 1800, // We are adding all links to queue on startUrl
+        handlePageTimeoutSecs: 600,
         handlePageFunction: async ({ request, page }) => {
             const { label } = request.userData;
             console.log(`Open ${request.url} with label: ${label}`);
