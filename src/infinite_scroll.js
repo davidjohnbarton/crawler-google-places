@@ -1,6 +1,6 @@
 const Apify = require('apify');
 
-const sleepPromised = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = Apify.utils;
 
 const logError = (msg, e) => {
     console.log(`ERROR: ${msg}`);
@@ -105,7 +105,7 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
                 await scrollTo(page, elementToScroll, scrollInfo.scrollHeight);
             }
 
-            await sleepPromised(defaultScrollDelay);
+            await sleep(defaultScrollDelay);
         }
         // Scroll back up, otherwise the screenshot of the browser would only show the bottom of
         // the page
