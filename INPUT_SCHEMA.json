@@ -4,19 +4,19 @@
   "type": "object",
   "schemaVersion": 1,
   "properties": {
-    "proxyGoups": {
-      "title": "Proxy configuration",
-      "type": "object",
-      "description": "Optionaly use Apify Proxy",
-      "prefill": { "useApifyProxy": true },
-      "editor": "proxy"
-    },
     "searchString": {
       "title": "Search",
       "type": "string",
       "description": "String will be search on Google maps.",
       "prefill": "New York Gym",
       "editor": "textfield"
+    },
+    "proxyConfig": {
+      "title": "Proxy configuration",
+      "type": "object",
+      "description": "Use Apify Proxy, you need to have some proxy group to  results on Google.",
+      "prefill": { "useApifyProxy": true },
+      "editor": "proxy"
     },
     "lat": {
       "title": "Viewport Latitude",

@@ -31,7 +31,7 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
 
 Apify.main(async () => {
     const input = await Apify.getValue('INPUT');
-    const { searchString, lat, lng } = input;
+    const { searchString, proxyConfig, lat, lng } = input;
 
     if (!searchString) throw new Error('Attribute searchString missing in input.');
 
@@ -55,13 +55,16 @@ Apify.main(async () => {
     // NOTE: Ensured - If pageFunction failed crawler skipped already scraped pagination
     let listingPagination = await Apify.getValue(LISTING_PAGINATION_KEY) || {};
 
+    const launchPuppeteerOptions = {
+        useApifyProxy: true,
+        // useChrome: true,
+        apifyProxyGroups: ['CZECH_LUMINATI'],
+        // liveView: Apify.isAtHome(),
+    };
+    if (proxyConfig) Object.assign(launchPuppeteerOptions, proxyConfig);
+
     const crawler = new Apify.PuppeteerCrawler({
-        launchPuppeteerOptions: {
-            useApifyProxy: true,
-            // useChrome: true,
-            apifyProxyGroups: ['CZECH_LUMINATI'],
-            // liveView: Apify.isAtHome(),
-        },
+        launchPuppeteerOptions,
         requestQueue,
         handlePageTimeoutSecs: 1800, // We are adding all links to queue on startUrl
         handlePageFunction: async ({ request, page }) => {
