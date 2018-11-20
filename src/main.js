@@ -230,7 +230,6 @@ Apify.main(async () => {
                             likesCount: $review.find('.section-review-thumbs-up-count').text().trim(),
                         };
                     }, reviewEl);
-                    console.log(review);
                     placeDetail.reviews.push(review);
                 }
                 await Apify.pushData(placeDetail);
