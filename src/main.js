@@ -22,7 +22,7 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
         await page.waitForSelector('.section-back-to-list-button');
         const url = page.url();
         await requestQueue.addRequest({ url, userData: { label: 'detail' } });
-        console.log(`${url} added to queue.`);
+        console.log(`Added to queue ${url}`);
         await page.click('.section-back-to-list-button');
         await sleep(5000);
     }
