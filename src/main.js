@@ -57,7 +57,7 @@ Apify.main(async () => {
     const crawler = new Apify.PuppeteerCrawler({
         launchPuppeteerOptions: {
             useApifyProxy: true,
-            useChrome: true,
+            // useChrome: true,
             apifyProxyGroups: ['CZECH_LUMINATI'],
             // liveView: Apify.isAtHome(),
         },
