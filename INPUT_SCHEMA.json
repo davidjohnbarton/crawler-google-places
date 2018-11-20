@@ -24,7 +24,7 @@
     },
     "zoom": {
       "title": "Viewport Zoom",
-      "type": "number",
+      "type": "integer",
       "description": "Use it with combination with longitude and latitude to set up viewport to search on.",
       "minimum": 1,
       "maximum": 15
