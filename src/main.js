@@ -18,6 +18,9 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
         // Need to get results again, pupptr lost context..
         await page.waitForSelector('.searchbox');
         await page.waitFor(() => !document.querySelector('#searchbox').classList.contains('loading'));
+        await page.waitFor((resultIndex) => {
+            return document.querySelectorAll('.section-result h3').length >= resultIndex + 1;
+        }, {}, resultIndex);
         results = await page.$$('.section-result');
         const link = await results[resultIndex].$('h3');
         await link.click();
