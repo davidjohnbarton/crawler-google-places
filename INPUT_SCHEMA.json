@@ -18,12 +18,13 @@
     "lng": {
       "title": "Viewport Longitude",
       "type": "number",
-      "description": "Use it with combination with latitude and zoom to set up viewport to search on.",
+      "description": "Use it with combination with latitude and zoom to set up viewport to search on."
     },
     "zoom": {
       "title": "Viewport Zoom",
       "type": "number",
       "description": "Use it with combination with longitude and latitude to set up viewport to search on.",
+      "minimum": 1,
       "maximum": 15
     }
   },
