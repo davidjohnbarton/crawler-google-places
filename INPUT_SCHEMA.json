@@ -14,7 +14,7 @@
     "proxyConfig": {
       "title": "Proxy configuration",
       "type": "object",
-      "description": "Use Apify Proxy, you need to have some proxy group to  results on Google.",
+      "description": "Use Apify Proxy, you need to have some proxy group to get results on Google.",
       "prefill": { "useApifyProxy": true },
       "editor": "proxy"
     },

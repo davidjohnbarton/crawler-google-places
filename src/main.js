@@ -16,6 +16,7 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
     const resultsCount = results.length;
     for (let resultIndex = 0; resultIndex < resultsCount; resultIndex++) {
         // Need to get results again, pupptr lost context..
+        await page.waitForSelector('.section-result');
         results = await page.$$('.section-result');
         const link = await results[resultIndex].$('h3');
         await link.click();
@@ -46,10 +47,9 @@ Apify.main(async () => {
         startUrl = 'https://www.google.com/maps/search/';
     }
 
-    console.log('Start url is ', startUrl);
+    console.log('Start url is', startUrl);
 
     const requestQueue = await Apify.openRequestQueue();
-    await requestQueue.addRequest({ url: startUrl, userData: { label: 'startUrl' } });
 
     // Store state of listing pagination
     // NOTE: Ensured - If pageFunction failed crawler skipped already scraped pagination
@@ -63,6 +63,44 @@ Apify.main(async () => {
     };
     if (proxyConfig) Object.assign(launchPuppeteerOptions, proxyConfig);
 
+    // Enqueue all links to scrape from listings
+    if (!listingPagination.isFinish) {
+        console.log(`Start enqueuing place details for search: ${searchString}`);
+        const browser = await Apify.launchPuppeteer(launchPuppeteerOptions);
+        const page = await browser.newPage();
+        await page.goto(startUrl);
+        await page.type('#searchboxinput', searchString);
+        await sleep(5000);
+        await page.click('#searchbox-searchbutton');
+        await sleep(5000);
+        while (true) {
+            await page.waitForSelector('#section-pagination-button-next', { timeout: DEFAULT_TIMEOUT });
+            const paginationText = await page.$eval('.section-pagination-right', (el) => el.innerText);
+            const [fromString, toString] = paginationText.match(/\d+/g);
+            const from = parseInt(fromString);
+            const to = parseInt(toString);
+            if (listingPagination.to && to <= listingPagination.to) {
+                console.log(`Skiped pagination ${from} - ${to}, already done!`);
+            } else {
+                console.log(`Added links from pagination ${from} - ${to}`);
+                await enqueueAllUrlsFromPagination(page, requestQueue);
+            }
+            listingPagination = { from, to };
+            await Apify.setValue(LISTING_PAGINATION_KEY, listingPagination);
+            const nextButton = await page.$('#section-pagination-button-next');
+            const isNextPaginationDisabled = (await nextButton.getProperty('disabled') === 'true');
+            if (isNextPaginationDisabled) {
+                break;
+            } else {
+                await nextButton.click();
+            }
+            await sleep(5000);
+        }
+        listingPagination.isFinish = true;
+        await Apify.setValue(LISTING_PAGINATION_KEY, listingPagination);
+    }
+
+    // Scrape all place detail links
     const crawler = new Apify.PuppeteerCrawler({
         launchPuppeteerOptions,
         requestQueue,
@@ -70,83 +108,52 @@ Apify.main(async () => {
         handlePageFunction: async ({ request, page }) => {
             const { label } = request.userData;
             console.log(`Open ${request.url} with label: ${label}`);
-
-            if (label === 'startUrl') {
-                // Enqueue all urls for place detail
-                await page.type('#searchboxinput', searchString);
-                await sleep(5000);
-                await page.click('#searchbox-searchbutton');
-                await sleep(5000);
-                while (true) {
-                    await page.waitForSelector('#section-pagination-button-next', { timeout: DEFAULT_TIMEOUT });
-                    const paginationText = await page.$eval('.section-pagination-right', (el) => el.innerText);
-                    const [fromString, toString] = paginationText.match(/\d+/g);
-                    const from = parseInt(fromString);
-                    const to = parseInt(toString);
-                    if (listingPagination.to && to <= listingPagination.to) {
-                        console.log(`Skiped pagination ${from} - ${to}, already done!`);
-                    } else {
-                        console.log(`Added links from pagination ${from} - ${to}`);
-                        await enqueueAllUrlsFromPagination(page, requestQueue);
-                    }
-                    listingPagination = { from, to };
-                    await Apify.setValue(LISTING_PAGINATION_KEY, listingPagination);
-                    const nextButton = await page.$('#section-pagination-button-next');
-                    const isNextPaginationDisabled = (await nextButton.getProperty('disabled') === 'true');
-                    if (isNextPaginationDisabled) {
-                        break;
-                    } else {
-                        await nextButton.click();
-                    }
-                    await sleep(5000);
-                }
-            } else {
-                // Get data from review
-                await injectJQuery(page);
-                await page.waitForSelector('h1.section-hero-header-title', { timeout: DEFAULT_TIMEOUT });
-                const placeDetail = await page.evaluate(() => {
-                    return {
-                        title: $('h1.section-hero-header-title').text().trim(),
-                        totalScore: $('span.section-star-display').eq(0).text().trim(),
-                        categoryName: $('[jsaction="pane.rating.category"]').text().trim(),
-                        address: $('[data-section-id="ad"] .widget-pane-link').text().trim(),
-                        plusCode: $('[data-section-id="ol"] .widget-pane-link').text().trim(),
-                    };
+            // Get data from review
+            await injectJQuery(page);
+            await page.waitForSelector('h1.section-hero-header-title', { timeout: DEFAULT_TIMEOUT });
+            const placeDetail = await page.evaluate(() => {
+                return {
+                    title: $('h1.section-hero-header-title').text().trim(),
+                    totalScore: $('span.section-star-display').eq(0).text().trim(),
+                    categoryName: $('[jsaction="pane.rating.category"]').text().trim(),
+                    address: $('[data-section-id="ad"] .widget-pane-link').text().trim(),
+                    plusCode: $('[data-section-id="ol"] .widget-pane-link').text().trim(),
+                };
+            });
+            placeDetail.url = request.url;
+            placeDetail.reviews = [];
+            if (placeDetail.totalScore) {
+                placeDetail.reviewsCount = await page.evaluate(() => {
+                    const numberReviewsText = $('button.section-reviewchart-numreviews').text().trim();
+                    return (numberReviewsText) ? numberReviewsText.match(/\d+/)[0] : null;
                 });
-                placeDetail.url = request.url;
-                placeDetail.reviews = [];
-                if (placeDetail.totalScore) {
-                    placeDetail.reviewsCount = await page.evaluate(() => {
-                        const numberReviewsText = $('button.section-reviewchart-numreviews').text().trim();
-                        return (numberReviewsText) ? numberReviewsText.match(/\d+/)[0] : null;
-                    });
-                    // Get all reviews
-                    await page.click('button.section-reviewchart-numreviews');
-                    await page.waitForSelector('.section-star-display');
-                    await infiniteScroll(page, 99999999999, '.section-scrollbox');
-                    sleep(2000);
-                    const reviewEls = await page.$$('div.section-review');
-                    for (const reviewEl of reviewEls) {
-                        const moreButton = await reviewEl.$('.section-expand-review');
-                        if (moreButton) {
-                            await moreButton.click();
-                            sleep(1000);
-                        }
-                        const review = await page.evaluate((reviewEl) => {
-                            const $review = $(reviewEl);
-                            return {
-                                name: $review.find('.section-review-title').text().trim(),
-                                text: $review.find('.section-review-text').text(),
-                                stars: $review.find('.section-review-stars').attr('aria-label').trim(),
-                                publishAt: $review.find('.section-review-publish-date').text().trim(),
-                                likesCount: $review.find('.section-review-thumbs-up-count').text().trim(),
-                            };
-                        }, reviewEl);
-                        placeDetail.reviews.push(review);
+                // Get all reviews
+                await page.click('button.section-reviewchart-numreviews');
+                await page.waitForSelector('.section-star-display');
+                await infiniteScroll(page, 99999999999, '.section-scrollbox');
+                sleep(2000);
+                const reviewEls = await page.$$('div.section-review');
+                for (const reviewEl of reviewEls) {
+                    const moreButton = await reviewEl.$('.section-expand-review');
+                    if (moreButton) {
+                        await moreButton.click();
+                        sleep(1000);
                     }
+                    const review = await page.evaluate((reviewEl) => {
+                        const $review = $(reviewEl);
+                        return {
+                            name: $review.find('.section-review-title').text().trim(),
+                            text: $review.find('.section-review-text').text(),
+                            stars: $review.find('.section-review-stars').attr('aria-label').trim(),
+                            publishAt: $review.find('.section-review-publish-date').text().trim(),
+                            likesCount: $review.find('.section-review-thumbs-up-count').text().trim(),
+                        };
+                    }, reviewEl);
+                    placeDetail.reviews.push(review);
                 }
-                await Apify.pushData(placeDetail);
             }
+            await Apify.pushData(placeDetail);
+
             console.log(request.url, 'Done');
         },
     });
