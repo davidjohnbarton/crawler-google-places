@@ -1,6 +1,6 @@
 const Apify = require('apify');
 
-const sleep = Apify.utils;
+const { sleep } = Apify.utils;
 
 const logError = (msg, e) => {
     console.log(`ERROR: ${msg}`);
