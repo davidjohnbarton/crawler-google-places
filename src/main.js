@@ -16,7 +16,8 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
     const resultsCount = results.length;
     for (let resultIndex = 0; resultIndex < resultsCount; resultIndex++) {
         // Need to get results again, pupptr lost context..
-        await page.waitForSelector('.section-result');
+        await page.waitForSelector('.searchbox');
+        await page.waitFor(() => !document.querySelector('#searchbox').classList.contains('loading'));
         results = await page.$$('.section-result');
         const link = await results[resultIndex].$('h3');
         await link.click();
@@ -25,7 +26,6 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
         await requestQueue.addRequest({ url, userData: { label: 'detail' } });
         console.log(`Added to queue ${url}`);
         await page.click('.section-back-to-list-button');
-        await sleep(5000);
     }
     return detailLinks;
 };
@@ -87,6 +87,7 @@ Apify.main(async () => {
             }
             listingPagination = { from, to };
             await Apify.setValue(LISTING_PAGINATION_KEY, listingPagination);
+            await page.waitForSelector('#section-pagination-button-next', { timeout: DEFAULT_TIMEOUT });
             const nextButton = await page.$('#section-pagination-button-next');
             const isNextPaginationDisabled = (await nextButton.getProperty('disabled') === 'true');
             if (isNextPaginationDisabled) {
@@ -94,7 +95,6 @@ Apify.main(async () => {
             } else {
                 await nextButton.click();
             }
-            await sleep(5000);
         }
         listingPagination.isFinish = true;
         await Apify.setValue(LISTING_PAGINATION_KEY, listingPagination);
