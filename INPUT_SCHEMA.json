@@ -12,12 +12,12 @@
     },
     "lat": {
       "title": "Viewport Latitude",
-      "type": "number",
+      "type": "string",
       "description": "Use it with combination with longitude and zoom to set up viewport to search on."
     },
     "lng": {
       "title": "Viewport Longitude",
-      "type": "number",
+      "type": "string",
       "description": "Use it with combination with latitude and zoom to set up viewport to search on."
     },
     "zoom": {
