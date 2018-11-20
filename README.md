@@ -1,22 +1,16 @@
 # Crawler Google Places
+This crawler search string on input on [google maps](https://www.google.com/maps) and returns all information about found places.
 
-## Work in progress, TODOs:
-- Input schema
-- Proxy groups on input
-- ESlint code
-- Improve enqueuing details pages from listing
-
-## How to use
+## How to use through API
+How to use Actor from Apify UI see [actor detail page](https://www.apify.com/drobnikj/crawler-google-places).
 
 Example input:
 ```json
 {
   "searchString": "ČSOB",
-  "searchViewport": {
-    "lat": "50.0860729",
-    "lng": "14.4135326",
-    "zoom": 10
-  }
+  "lat": "50.0860729",
+  "lng": "14.4135326",
+  "zoom": 10
 }
 ```
 On this input actor searches places on this start url: https://www.google.com/maps/search/%C4%8Dsob/@50.0860729,14.4135326,10z

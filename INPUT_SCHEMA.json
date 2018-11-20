@@ -1,8 +1,16 @@
 {
   "title": "Crawler for Google places",
+  "description": "This crawler search string on input on google maps and returns all information about found places.",
   "type": "object",
   "schemaVersion": 1,
   "properties": {
+    "proxyGoups": {
+      "title": "Proxy configuration",
+      "type": "object",
+      "description": "Optionaly use Apify Proxy",
+      "prefill": { "useApifyProxy": true },
+      "editor": "proxy"
+    },
     "searchString": {
       "title": "Search",
       "type": "string",
