@@ -8,7 +8,7 @@
       "title": "Search",
       "type": "string",
       "description": "String will be search on Google maps.",
-      "prefill": "New York Gym",
+      "prefill": "Gym",
       "editor": "textfield"
     },
     "proxyConfig": {

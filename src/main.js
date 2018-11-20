@@ -111,6 +111,7 @@ Apify.main(async () => {
     const crawler = new Apify.PuppeteerCrawler({
         launchPuppeteerOptions,
         requestQueue,
+        retireInstanceAfterRequestCount: 10,
         handlePageTimeoutSecs: 600,
         handlePageFunction: async ({ request, page }) => {
             const { label } = request.userData;
