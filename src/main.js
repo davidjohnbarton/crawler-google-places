@@ -54,7 +54,6 @@ Apify.main(async () => {
     let listingPagination = await Apify.getValue(LISTING_PAGINATION_KEY) || {};
 
     const crawler = new Apify.PuppeteerCrawler({
-        maxOpenPagesPerInstance: 1, // NOTE: Ensure that we rotate IP after each request
         launchPuppeteerOptions: {
             useApifyProxy: true,
             useChrome: true,
