@@ -105,14 +105,14 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
                 // If the page is scrolled to the very bottom or beyond maximum height, we are done
                 if (scrollInfo.scrollTop + scrollInfo.clientHeight >= Math.min(scrollInfo.scrollHeight, maxHeight)) break;
                 // Otherwise we try to scroll down
-                await scrollTo(page, elementToScroll, scrollInfo.scrollHeight);
+                await scrollTo(page, elementToScroll, scrollInfo.scrollHeight + scrollInfo.clientHeight);
             }
 
             await sleep(defaultScrollDelay);
         }
         // Scroll back up, otherwise the screenshot of the browser would only show the bottom of
         // the page
-        await scrollTo(page, elementToScroll, scrollInfo.scrollHeight);
+        await scrollTo(page, elementToScroll, scrollInfo.scrollHeight + scrollInfo.clientHeight);
 
         logInfo(`Infinite scroll finished (${stringifyScrollInfo(scrollInfo)} resourcesStats=${JSON.stringify(resourcesStats)})`);
     } catch (err) {
