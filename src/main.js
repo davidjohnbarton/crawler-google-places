@@ -121,7 +121,7 @@ Apify.main(async () => {
         // useApifyProxy: true,
         // useChrome: true,
         // apifyProxyGroups: ['CZECH_LUMINATI'],
-        // liveView: Apify.isAtHome(),
+        liveView: Apify.isAtHome(),
     };
     if (proxyConfig) Object.assign(launchPuppeteerOptions, proxyConfig);
 
