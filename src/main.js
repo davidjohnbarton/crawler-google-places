@@ -139,7 +139,6 @@ Apify.main(async () => {
         maxRequestRetries: MAX_PAGE_RETRIES,
         retireInstanceAfterRequestCount: 10,
         handlePageTimeoutSecs: 600,
-        maxConcurrency: Apify.isAtHome() ? null : 1,
         handlePageFunction: async ({ request, page }) => {
             const { label } = request.userData;
             console.log(`Open ${request.url} with label: ${label}`);
