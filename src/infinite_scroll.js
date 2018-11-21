@@ -85,7 +85,7 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
 
             // Forget pending resources that didn't finish loading in time
             const now = Date.now();
-            const timeout = 10000; // TODO: use resourceTimeout
+            const timeout = 30000; // TODO: use resourceTimeout
             Object.keys(pendingRequests)
                 .forEach((requestId) => {
                     if (pendingRequests[requestId] + timeout < now) {
