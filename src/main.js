@@ -142,7 +142,7 @@ Apify.main(async () => {
         handlePageTimeoutSecs: 600,
         gotoFunction: async ({ request, page }) => {
             await page._client.send('Emulation.clearDeviceMetricsOverride');
-            await page.goto(request.url, { timeout: 60000 })
+            await page.goto(request.url, { timeout: 60000 });
         },
         handlePageFunction: async ({ request, page }) => {
             const { label } = request.userData;
@@ -169,14 +169,14 @@ Apify.main(async () => {
                 // Get all reviews
                 await page.click('button.section-reviewchart-numreviews');
                 await page.waitForSelector('.section-star-display', { timeout: DEFAULT_TIMEOUT });
-                await infiniteScroll(page, 99999999999, '.section-scrollbox');
-                sleep(2000);
+                await infiniteScroll(page, 99999999999, '.section-scrollbox.section-listbox');
+                await sleep(2000);
                 const reviewEls = await page.$$('div.section-review');
                 for (const reviewEl of reviewEls) {
                     const moreButton = await reviewEl.$('.section-expand-review');
                     if (moreButton) {
                         await moreButton.click();
-                        sleep(1000);
+                        await sleep(1000);
                     }
                     const review = await page.evaluate((reviewEl) => {
                         const $review = $(reviewEl);

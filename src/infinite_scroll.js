@@ -80,6 +80,7 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
         let scrollInfo = await getPageScrollInfo(page, elementToScroll);
         logInfo(`Infinite scroll started (${stringifyScrollInfo(scrollInfo)}).`);
 
+        let previosReviewsCount = 0;
         while (true) {
             scrollInfo = await getPageScrollInfo(page, elementToScroll);
 
@@ -97,13 +98,25 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
             logDebug(`Infinite scroll stats (${stringifyScrollInfo(scrollInfo)} resourcesStats=${JSON.stringify(resourcesStats)}).`);
 
             const pendingRequestsCount = resourcesStats.requested - (resourcesStats.finished + resourcesStats.failed + resourcesStats.forgotten);
+
             if (pendingRequestsCount === 0) {
                 // If the page is scrolled to the very bottom or beyond maximum height, we are done
-                if (scrollInfo.scrollTop + scrollInfo.clientHeight >= Math.min(scrollInfo.scrollHeight, maxHeight)) break;
+                const isLoaderOnPage = await page.evaluate(() => {
+                    const loader = $('.section-loading-spinner');
+                    if (loader) {
+                        return loader.parent().attr('style') !== 'display: none;';
+                    }
+                });
+                const reviewsCount = await page.evaluate(() => $('div.section-review').length);
+                // console.log(reviewsCount, previosReviewsCount, isLoaderOnPage);
+                if (reviewsCount === previosReviewsCount
+                    && (scrollInfo.scrollTop + scrollInfo.clientHeight >= Math.min(scrollInfo.scrollHeight, maxHeight))
+                    && !isLoaderOnPage
+                ) break;
+                previosReviewsCount = reviewsCount;
                 // Otherwise we try to scroll down
                 await scrollTo(page, elementToScroll, maxHeight);
             }
-
             await sleep(defaultScrollDelay);
         }
         // Scroll back up, otherwise the screenshot of the browser would only show the bottom of
