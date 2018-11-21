@@ -63,19 +63,15 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
         interceptedRequest.continue();
     });
     page.on('requestfailed', (interceptedRequest) => {
-        if (maybeResourceTypesInfiniteScroll.includes(interceptedRequest.resourceType)) {
-            if (pendingRequests[interceptedRequest._requestId]) {
-                delete pendingRequests[interceptedRequest._requestId];
-                ++resourcesStats.failed;
-            }
+        if (pendingRequests[interceptedRequest._requestId]) {
+            delete pendingRequests[interceptedRequest._requestId];
+            ++resourcesStats.failed;
         }
     });
     page.on('requestfinished', (interceptedRequest) => {
-        if (maybeResourceTypesInfiniteScroll.includes(interceptedRequest.resourceType)) {
-            if (pendingRequests[interceptedRequest._requestId]) {
-                delete pendingRequests[interceptedRequest._requestId];
-                ++resourcesStats.finished;
-            }
+        if (pendingRequests[interceptedRequest._requestId]) {
+            delete pendingRequests[interceptedRequest._requestId];
+            ++resourcesStats.finished;
         }
     });
 
