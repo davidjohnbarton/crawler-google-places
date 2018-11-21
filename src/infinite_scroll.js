@@ -44,6 +44,7 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
             `maxHeight=${maxHeight}`;
     };
     const defaultScrollDelay = 3000;
+    const defaultElementTimeout = 60000;
 
     // Catch and count all pages request for resources
     const resourcesStats = {
@@ -53,31 +54,33 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
         forgotten: 0,
     };
     const pendingRequests = {};
-    page.on('request', (msg) => {
-        if (maybeResourceTypesInfiniteScroll.includes(msg.resourceType)) {
-            pendingRequests[msg._requestId] = Date.now();
-            resourcesStats.requested++;
+    await page.setRequestInterception(true);
+    page.on('request', (interceptedRequest) => {
+        if (maybeResourceTypesInfiniteScroll.includes(interceptedRequest.resourceType())) {
+            pendingRequests[interceptedRequest._requestId] = Date.now();
+            ++resourcesStats.requested;
         }
+        interceptedRequest.continue();
     });
-    page.on('requestfailed', (msg) => {
-        if (maybeResourceTypesInfiniteScroll.includes(msg.resourceType)) {
-            if (pendingRequests[msg._requestId]) {
-                delete pendingRequests[msg._requestId];
-                resourcesStats.failed++;
+    page.on('requestfailed', (interceptedRequest) => {
+        if (maybeResourceTypesInfiniteScroll.includes(interceptedRequest.resourceType)) {
+            if (pendingRequests[interceptedRequest._requestId]) {
+                delete pendingRequests[interceptedRequest._requestId];
+                ++resourcesStats.failed;
             }
         }
     });
-    page.on('requestfinished', (msg) => {
-        if (maybeResourceTypesInfiniteScroll.includes(msg.resourceType)) {
-            if (pendingRequests[msg._requestId]) {
-                delete pendingRequests[msg._requestId];
-                resourcesStats.finished++;
+    page.on('requestfinished', (interceptedRequest) => {
+        if (maybeResourceTypesInfiniteScroll.includes(interceptedRequest.resourceType)) {
+            if (pendingRequests[interceptedRequest._requestId]) {
+                delete pendingRequests[interceptedRequest._requestId];
+                ++resourcesStats.finished;
             }
         }
     });
 
     try {
-        await page.waitForSelector(elementToScroll);
+        await page.waitForSelector(elementToScroll, { timeout: defaultElementTimeout });
         let scrollInfo = await getPageScrollInfo(page, elementToScroll);
         logInfo(`Infinite scroll started (${stringifyScrollInfo(scrollInfo)}).`);
 
@@ -86,7 +89,7 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
 
             // Forget pending resources that didn't finish loading in time
             const now = Date.now();
-            const timeout = 30000; // TODO: use resourceTimeout
+            const timeout = 10000; // TODO: use resourceTimeout
             Object.keys(pendingRequests)
                 .forEach((requestId) => {
                     if (pendingRequests[requestId] + timeout < now) {
