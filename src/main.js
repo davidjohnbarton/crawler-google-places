@@ -70,7 +70,8 @@ const enqueueAllPlaceDetails = async (startUrl, searchString, launchPuppeteerOpt
             const isNextPaginationDisabled = await page.evaluate((nextButtonSelector) => {
                 return !!$(nextButtonSelector).attr('disabled');
             }, nextButtonSelector);
-            if (isNextPaginationDisabled) {
+            const noResultsEl = await page.$('.section-no-result-title');
+            if (isNextPaginationDisabled || noResultsEl) {
                 break;
             } else {
                 // NOTE: puppeteer API click() didn't work :(
