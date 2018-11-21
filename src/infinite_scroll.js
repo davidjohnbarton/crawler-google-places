@@ -1,13 +1,10 @@
 const Apify = require('apify');
 
-const { sleep } = Apify.utils;
+const { sleep, log } = Apify.utils;
 
-const logError = (msg, e) => {
-    console.log(`ERROR: ${msg}`);
-    console.error(e);
-};
-const logInfo = (msg) => console.log(`INFO: ${msg}`);
-const logDebug = (msg) => console.log(`DEBUG: ${msg}`);
+const logError = (msg, e) => log.exception(e, msg);
+const logInfo = (msg) => log.info(msg);
+const logDebug = (msg) => log.debug(msg);
 
 /**
  * Method scrolls page to xpos, ypos.
