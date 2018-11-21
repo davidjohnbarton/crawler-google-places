@@ -140,11 +140,14 @@ Apify.main(async () => {
         maxRequestRetries: MAX_PAGE_RETRIES,
         retireInstanceAfterRequestCount: 10,
         handlePageTimeoutSecs: 600,
+        gotoFunction: async ({ request, page }) => {
+            await page._client.send('Emulation.clearDeviceMetricsOverride');
+            await page.goto(request.url, { timeout: 60000 })
+        },
         handlePageFunction: async ({ request, page }) => {
             const { label } = request.userData;
             console.log(`Open ${request.url} with label: ${label}`);
             // Get data from review
-            await page._client.send('Emulation.clearDeviceMetricsOverride');
             await injectJQuery(page);
             await page.waitForSelector('h1.section-hero-header-title', { timeout: DEFAULT_TIMEOUT });
             const placeDetail = await page.evaluate(() => {
