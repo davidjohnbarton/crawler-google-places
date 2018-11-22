@@ -28,7 +28,7 @@ const getPageScrollInfo = (page, elementToScroll) => page.evaluate((elementToScr
 /**
  * Scroll to down page until infinite scroll ends or reaches maxHeight
  * @param page - instance of crawled page
- * @param maxHeight - max height of document to scrollscrollHeight
+ * @param maxHeight - max height of document to scrollHeight
  * @param elementToScroll - CSS selector of element where we want to scroll, default is 'body'
  * @return {Promise.<void>}
  */
@@ -96,30 +96,29 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
 
             const pendingRequestsCount = resourcesStats.requested - (resourcesStats.finished + resourcesStats.failed + resourcesStats.forgotten);
 
+            // We have to wait if all xhrs are finished
             if (pendingRequestsCount === 0) {
-                // If the page is scrolled to the very bottom or beyond maximum height, we are done
                 const isLoaderOnPage = await page.evaluate(() => {
                     const loader = $('.section-loading-spinner');
-                    if (loader) {
-                        return loader.parent().attr('style') !== 'display: none;';
-                    }
+                    if (loader) return loader.parent().attr('style') !== 'display: none;';
                 });
+
                 const reviewsCount = await page.evaluate(() => $('div.section-review').length);
-                // console.log(reviewsCount, previosReviewsCount, isLoaderOnPage);
+                /**
+                 *  If the page is scrolled to the very bottom or beyond
+                 *  maximum height and loader is not displayed and we don't find new reviews, we are done.
+                 */
                 if (reviewsCount === previosReviewsCount
                     && (scrollInfo.scrollTop + scrollInfo.clientHeight >= Math.min(scrollInfo.scrollHeight, maxHeight))
                     && !isLoaderOnPage
                 ) break;
                 previosReviewsCount = reviewsCount;
+
                 // Otherwise we try to scroll down
                 await scrollTo(page, elementToScroll, maxHeight);
             }
             await sleep(defaultScrollDelay);
         }
-        // Scroll back up, otherwise the screenshot of the browser would only show the bottom of
-        // the page
-        await scrollTo(page, elementToScroll, maxHeight);
-
         logInfo(`Infinite scroll finished (${stringifyScrollInfo(scrollInfo)} resourcesStats=${JSON.stringify(resourcesStats)})`);
     } catch (err) {
         logError('An exception thrown in infiniteScroll()', err);
