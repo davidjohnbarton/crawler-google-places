@@ -49,9 +49,9 @@ const setUpCrawler = (launchPuppeteerOptions, requestQueue) => {
                 await page.waitForSelector('.section-star-display', { timeout: DEFAULT_TIMEOUT });
                 await sleep(2000);
                 // Sort reviews by newest
-                await page.waitForSelector('.section-tab-info-stats-button-flex');
+                await page.waitForSelector('.section-tab-info-stats-button-flex', { timeout: DEFAULT_TIMEOUT });
                 await page.click('.section-tab-info-stats-button-flex .maps-sprite-reviews-expand-more');
-                await page.waitForSelector('.context-menu-entry[data-index="1"]');
+                await page.waitForSelector('.context-menu-entry[data-index="1"]', { timeout: DEFAULT_TIMEOUT });
                 await page.click('.context-menu-entry[data-index="1"]');
                 await infiniteScroll(page, 99999999999, '.section-scrollbox.section-listbox');
                 const reviewEls = await page.$$('div.section-review');
