@@ -50,6 +50,11 @@ const enqueueAllPlaceDetailsCrawler = async (startUrl, searchString, launchPuppe
         await sleep(5000);
         await waitForGoogleMapLoader(page);
         // In case there is no listing, put just detail page to queue
+        try {
+            await page.waitForSelector('h1.section-hero-header-title');
+        } catch (e) {
+            // It can happen, doesn't matter
+        }
         const maybeDetailPlace = await page.$('h1.section-hero-header-title');
         if (maybeDetailPlace) {
             const url = page.url();
