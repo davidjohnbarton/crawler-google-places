@@ -1,6 +1,8 @@
 const Apify = require('apify');
+
 const { sleep } = Apify.utils;
 const infiniteScroll = require('./infinite_scroll');
+
 const { injectJQuery } = Apify.utils.puppeteer;
 const { MAX_PAGE_RETRIES, DEFAULT_TIMEOUT } = require('./consts');
 
@@ -17,7 +19,7 @@ const setUpCrawler = (launchPuppeteerOptions, requestQueue) => {
         maxRequestRetries: MAX_PAGE_RETRIES,
         retireInstanceAfterRequestCount: 10,
         handlePageTimeoutSecs: 600,
-        maxConcurrency: 1,
+        // maxConcurrency: 1,
         gotoFunction: async ({ request, page }) => {
             await page._client.send('Emulation.clearDeviceMetricsOverride');
             await page.goto(request.url, { timeout: 60000 });
@@ -49,10 +51,14 @@ const setUpCrawler = (launchPuppeteerOptions, requestQueue) => {
                 await page.waitForSelector('.section-star-display', { timeout: DEFAULT_TIMEOUT });
                 await sleep(2000);
                 // Sort reviews by newest
-                await page.waitForSelector('.section-tab-info-stats-button-flex', { timeout: DEFAULT_TIMEOUT });
-                await page.click('.section-tab-info-stats-button-flex .maps-sprite-reviews-expand-more');
-                await page.waitForSelector('.context-menu-entry[data-index="1"]', { timeout: DEFAULT_TIMEOUT });
-                await page.click('.context-menu-entry[data-index="1"]');
+                try {
+                    await page.waitForSelector('.section-tab-info-stats-button-flex', { timeout: DEFAULT_TIMEOUT });
+                    await page.click('.section-tab-info-stats-button-flex');
+                    await page.waitForSelector('.context-menu-entry[data-index="1"]', { timeout: DEFAULT_TIMEOUT });
+                    await page.click('.context-menu-entry[data-index="1"]');
+                } catch (err) {
+                    console.log(`For ${request.url} we can not change sorting of reviews.`);
+                }
                 await infiniteScroll(page, 99999999999, '.section-scrollbox.section-listbox');
                 const reviewEls = await page.$$('div.section-review');
                 for (const reviewEl of reviewEls) {
