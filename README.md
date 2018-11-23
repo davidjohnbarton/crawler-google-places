@@ -1,8 +1,8 @@
 # Crawler Google Places
-Crawler searches input on [google maps](https://www.google.com/maps) and returns all information about found places.
+Crawler searches input on [google maps](https://www.google.com/maps) and return all information about found places.
 
 ## How to use through API
-How to use Actor from Apify UI see [actor detail page](https://www.apify.com/drobnikj/crawler-google-places).
+How to use Actor from Apify UI/API see [actor detail page](https://www.apify.com/drobnikj/crawler-google-places).
 
 Example input:
 ```json
