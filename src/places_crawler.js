@@ -50,10 +50,13 @@ const setUpCrawler = (launchPuppeteerOptions, requestQueue) => {
                 await page.click('button.section-reviewchart-numreviews');
                 await page.waitForSelector('.section-star-display', { timeout: DEFAULT_TIMEOUT });
                 await sleep(5000);
-                // Sort reviews by newest
+                // Sort reviews by newest, one click sometimes didn't work :)
+                await page.click('.section-tab-info-stats-button-flex');
+                await sleep(1000);
+                await page.click('.section-tab-info-stats-button-flex');
+                await sleep(1000);
                 await page.click('.section-tab-info-stats-button-flex');
                 await sleep(5000);
-                await page.waitForSelector('.context-menu-entry[data-index="1"]', { timeout: DEFAULT_TIMEOUT });
                 await page.click('.context-menu-entry[data-index="1"]');
                 await infiniteScroll(page, 99999999999, '.section-scrollbox.section-listbox');
                 const reviewEls = await page.$$('div.section-review');
