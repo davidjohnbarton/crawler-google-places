@@ -23,6 +23,6 @@
   },
   "homepage": "https://github.com/drobnikj/crawler-google-places#readme",
   "dependencies": {
-    "apify": "^0.8.18"
+    "apify": "^0.9.13"
   }
 }
