@@ -7,7 +7,7 @@ const waitForGoogleMapLoader = (page) => page.waitFor(() => !document.querySelec
     .classList
     .contains('loading'), { timeout: DEFAULT_TIMEOUT });
 
-const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
+const enqueueAllUrlsFromPagination = async (page, requestQueue, paginationFrom, maxPlacesPerCrawl) => {
     let results = await page.$$('.section-result');
     const resultsCount = results.length;
     for (let resultIndex = 0; resultIndex < resultsCount; resultIndex++) {
@@ -25,6 +25,10 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
         const url = page.url();
         await requestQueue.addRequest({ url, userData: { label: 'detail' } });
         console.log(`Added to queue ${url}`);
+        if (maxPlacesPerCrawl && paginationFrom + resultIndex + 1 > maxPlacesPerCrawl) {
+            console.log(`Reach max places per crawl ${maxPlacesPerCrawl}, stopped enqueuing new places.`);
+            break;
+        }
         await page.click('.section-back-to-list-button');
     }
 };
@@ -36,9 +40,9 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
  * @param launchPuppeteerOptions
  * @param requestQueue
  * @param listingPagination
- * @param maxRequestsPerCrawl
+ * @param maxPlacesPerCrawl
  */
-const enqueueAllPlaceDetailsCrawler = async (page, searchString, launchPuppeteerOptions, requestQueue, listingPagination, maxRequestsPerCrawl) => {
+const enqueueAllPlaceDetailsCrawler = async (page, searchString, launchPuppeteerOptions, requestQueue, listingPagination, maxPlacesPerCrawl) => {
     await page.type('#searchboxinput', searchString);
     await sleep(5000);
     await page.click('#searchbox-searchbutton');
@@ -67,7 +71,7 @@ const enqueueAllPlaceDetailsCrawler = async (page, searchString, launchPuppeteer
             console.log(`Skiped pagination ${from} - ${to}, already done!`);
         } else {
             console.log(`Added links from pagination ${from} - ${to}`);
-            await enqueueAllUrlsFromPagination(page, requestQueue);
+            await enqueueAllUrlsFromPagination(page, requestQueue, from, maxPlacesPerCrawl);
             listingPagination = { from, to };
             await Apify.setValue(LISTING_PAGINATION_KEY, listingPagination);
         }
@@ -77,7 +81,7 @@ const enqueueAllPlaceDetailsCrawler = async (page, searchString, launchPuppeteer
                 .attr('disabled');
         }, nextButtonSelector);
         const noResultsEl = await page.$('.section-no-result-title');
-        if (isNextPaginationDisabled || noResultsEl || (maxRequestsPerCrawl && maxRequestsPerCrawl < to)) {
+        if (isNextPaginationDisabled || noResultsEl || (maxPlacesPerCrawl && maxPlacesPerCrawl < to)) {
             break;
         } else {
             // NOTE: puppeteer API click() didn't work :(

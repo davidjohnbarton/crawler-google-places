@@ -42,7 +42,7 @@ const setUpCrawler = (launchPuppeteerOptions, requestQueue, maxCrawledPlaces) =>
                 // Store state of listing pagination
                 // NOTE: Ensured - If pageFunction failed crawler skipped already scraped pagination
                 const listingPagination = await Apify.getValue(LISTING_PAGINATION_KEY) || {};
-                await enqueueAllPlaceDetailsCrawler.run(page, searchString, launchPuppeteerOptions, requestQueue, listingPagination, crawlerOpts.maxRequestsPerCrawl);
+                await enqueueAllPlaceDetailsCrawler.run(page, searchString, launchPuppeteerOptions, requestQueue, listingPagination, maxCrawledPlaces);
                 listingPagination.isFinish = true;
                 await Apify.setValue(LISTING_PAGINATION_KEY, listingPagination);
             } else {
