@@ -11,10 +11,11 @@ const enqueueAllPlaceDetailsCrawler = require('./enqueue_places_crawler');
  * Method to set up crawler to get all place details and save them to default dataset
  * @param launchPuppeteerOptions
  * @param requestQueue
+ * @param maxCrawledPlaces
  * @return {Apify.PuppeteerCrawler}
  */
-const setUpCrawler = (launchPuppeteerOptions, requestQueue) => {
-    return new Apify.PuppeteerCrawler({
+const setUpCrawler = (launchPuppeteerOptions, requestQueue, maxCrawledPlaces) => {
+    const crawlerOpts = {
         launchPuppeteerOptions,
         requestQueue,
         maxRequestRetries: MAX_PAGE_RETRIES,
@@ -22,6 +23,11 @@ const setUpCrawler = (launchPuppeteerOptions, requestQueue) => {
         handlePageTimeoutSecs: 2 * 3600, // Two hours because startUrl crawler
         maxOpenPagesPerInstance: 1, // Because startUrl crawler crashes if we mixed it with details scraping
         // maxConcurrency: 1,
+    };
+    if (maxCrawledPlaces) {
+        crawlerOpts.maxRequestsPerCrawl = maxCrawledPlaces + 1; // The first one is startUrl
+    }
+    return new Apify.PuppeteerCrawler(Object.assign(crawlerOpts, {
         gotoFunction: async ({ request, page }) => {
             await page._client.send('Emulation.clearDeviceMetricsOverride');
             await page.goto(request.url, { timeout: 60000 });
@@ -36,7 +42,7 @@ const setUpCrawler = (launchPuppeteerOptions, requestQueue) => {
                 // Store state of listing pagination
                 // NOTE: Ensured - If pageFunction failed crawler skipped already scraped pagination
                 const listingPagination = await Apify.getValue(LISTING_PAGINATION_KEY) || {};
-                await enqueueAllPlaceDetailsCrawler.run(page, searchString, launchPuppeteerOptions, requestQueue, listingPagination);
+                await enqueueAllPlaceDetailsCrawler.run(page, searchString, launchPuppeteerOptions, requestQueue, listingPagination, crawlerOpts.maxRequestsPerCrawl);
                 listingPagination.isFinish = true;
                 await Apify.setValue(LISTING_PAGINATION_KEY, listingPagination);
             } else {
@@ -113,7 +119,7 @@ const setUpCrawler = (launchPuppeteerOptions, requestQueue) => {
                 errors: request.errorMessages,
             });
         },
-    });
+    }));
 };
 
 module.exports = { setUpCrawler };

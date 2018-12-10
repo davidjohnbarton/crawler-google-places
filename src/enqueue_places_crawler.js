@@ -31,14 +31,14 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
 
 /**
  * Crawler add all place detail from listing to queue
- * @param startUrl
+ * @param page
  * @param searchString
  * @param launchPuppeteerOptions
  * @param requestQueue
  * @param listingPagination
- * @param retries
+ * @param maxRequestsPerCrawl
  */
-const enqueueAllPlaceDetailsCrawler = async (page, searchString, launchPuppeteerOptions, requestQueue, listingPagination) => {
+const enqueueAllPlaceDetailsCrawler = async (page, searchString, launchPuppeteerOptions, requestQueue, listingPagination, maxRequestsPerCrawl) => {
     await page.type('#searchboxinput', searchString);
     await sleep(5000);
     await page.click('#searchbox-searchbutton');
@@ -77,7 +77,7 @@ const enqueueAllPlaceDetailsCrawler = async (page, searchString, launchPuppeteer
                 .attr('disabled');
         }, nextButtonSelector);
         const noResultsEl = await page.$('.section-no-result-title');
-        if (isNextPaginationDisabled || noResultsEl) {
+        if (isNextPaginationDisabled || noResultsEl || (maxRequestsPerCrawl && maxRequestsPerCrawl < to)) {
             break;
         } else {
             // NOTE: puppeteer API click() didn't work :(

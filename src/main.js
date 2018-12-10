@@ -3,7 +3,7 @@ const placesCrawler = require('./places_crawler');
 
 Apify.main(async () => {
     const input = await Apify.getValue('INPUT');
-    const { searchString, proxyConfig, lat, lng } = input;
+    const { searchString, proxyConfig, lat, lng, maxCrawledPlaces } = input;
 
     if (!searchString) throw new Error('Attribute searchString missing in input.');
 
@@ -26,7 +26,7 @@ Apify.main(async () => {
     if (proxyConfig) Object.assign(launchPuppeteerOptions, proxyConfig);
 
     // Scrape all place detail links
-    const crawler = placesCrawler.setUpCrawler(launchPuppeteerOptions, requestQueue);
+    const crawler = placesCrawler.setUpCrawler(launchPuppeteerOptions, requestQueue, maxCrawledPlaces);
     await crawler.run();
 
     console.log('Done!');

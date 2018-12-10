@@ -18,6 +18,12 @@
       "prefill": { "useApifyProxy": true },
       "editor": "proxy"
     },
+    "maxCrawledPlaces": {
+      "title": "Max crawled places",
+      "type": "integer",
+      "description": "Use to limit places you want to get from crawler. If you fill 0 or nothing all places will be scrape",
+      "minimum": 0
+    },
     "lat": {
       "title": "Viewport Latitude",
       "type": "string",
