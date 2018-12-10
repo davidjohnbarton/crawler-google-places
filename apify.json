@@ -1,11 +1,6 @@
 {
 	"name": "crawler-google-places",
-	"actId": null,
-	"version": {
-		"versionNumber": "0.1",
-		"buildTag": "latest",
-		"envVars": [],
-		"sourceType": "TARBALL",
-		"tarballUrl": null
-	}
+	"version": "0.1",
+	"buildTag": "latest",
+	"env": null
 }

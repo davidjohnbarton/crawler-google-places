@@ -1,9 +1,11 @@
 const Apify = require('apify');
-const { sleep } = Apify.utils;
-const { injectJQuery } = Apify.utils.puppeteer;
-const { MAX_PAGE_RETRIES, DEFAULT_TIMEOUT, LISTING_PAGINATION_KEY } = require('./consts');
 
-const waitForGoogleMapLoader = (page) => page.waitFor(() => !document.querySelector('#searchbox').classList.contains('loading'), { timeout: DEFAULT_TIMEOUT });
+const { sleep } = Apify.utils;
+const { DEFAULT_TIMEOUT, LISTING_PAGINATION_KEY } = require('./consts');
+
+const waitForGoogleMapLoader = (page) => page.waitFor(() => !document.querySelector('#searchbox')
+    .classList
+    .contains('loading'), { timeout: DEFAULT_TIMEOUT });
 
 const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
     let results = await page.$$('.section-result');
@@ -36,70 +38,53 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue) => {
  * @param listingPagination
  * @param retries
  */
-const enqueueAllPlaceDetailsCrawler = async (startUrl, searchString, launchPuppeteerOptions, requestQueue, listingPagination, retries = 0) => {
-    let browser;
+const enqueueAllPlaceDetailsCrawler = async (page, searchString, launchPuppeteerOptions, requestQueue, listingPagination) => {
+    await page.type('#searchboxinput', searchString);
+    await sleep(5000);
+    await page.click('#searchbox-searchbutton');
+    await sleep(5000);
+    await waitForGoogleMapLoader(page);
+    // In case there is no listing, put just detail page to queue
     try {
-        browser = await Apify.launchPuppeteer(launchPuppeteerOptions);
-        const page = await browser.newPage();
-        await page._client.send('Emulation.clearDeviceMetricsOverride');
-        await page.goto(startUrl);
-        await injectJQuery(page);
-        await page.type('#searchboxinput', searchString);
-        await sleep(5000);
-        await page.click('#searchbox-searchbutton');
-        await sleep(5000);
-        await waitForGoogleMapLoader(page);
-        // In case there is no listing, put just detail page to queue
-        try {
-            await page.waitForSelector('h1.section-hero-header-title');
-        } catch (e) {
-            // It can happen, doesn't matter
+        await page.waitForSelector('h1.section-hero-header-title');
+    } catch (e) {
+        // It can happen, doesn't matter
+    }
+    const maybeDetailPlace = await page.$('h1.section-hero-header-title');
+    if (maybeDetailPlace) {
+        const url = page.url();
+        await requestQueue.addRequest({ url, userData: { label: 'detail' } });
+        return;
+    }
+    const nextButtonSelector = '[jsaction="pane.paginationSection.nextPage"]';
+    while (true) {
+        await page.waitForSelector(nextButtonSelector, { timeout: DEFAULT_TIMEOUT });
+        const paginationText = await page.$eval('.n7lv7yjyC35__right', (el) => el.innerText);
+        const [fromString, toString] = paginationText.match(/\d+/g);
+        const from = parseInt(fromString);
+        const to = parseInt(toString);
+        if (listingPagination.from && from <= listingPagination.from) {
+            console.log(`Skiped pagination ${from} - ${to}, already done!`);
+        } else {
+            console.log(`Added links from pagination ${from} - ${to}`);
+            await enqueueAllUrlsFromPagination(page, requestQueue);
+            listingPagination = { from, to };
+            await Apify.setValue(LISTING_PAGINATION_KEY, listingPagination);
         }
-        const maybeDetailPlace = await page.$('h1.section-hero-header-title');
-        if (maybeDetailPlace) {
-            const url = page.url();
-            await requestQueue.addRequest({ url, userData: { label: 'detail' } });
-            return;
+        await page.waitForSelector(nextButtonSelector, { timeout: DEFAULT_TIMEOUT });
+        const isNextPaginationDisabled = await page.evaluate((nextButtonSelector) => {
+            return !!$(nextButtonSelector)
+                .attr('disabled');
+        }, nextButtonSelector);
+        const noResultsEl = await page.$('.section-no-result-title');
+        if (isNextPaginationDisabled || noResultsEl) {
+            break;
+        } else {
+            // NOTE: puppeteer API click() didn't work :(
+            await page.evaluate((sel) => $(sel)
+                .click(), nextButtonSelector);
+            await waitForGoogleMapLoader(page);
         }
-        const nextButtonSelector = '#section-pagination-button-next';
-        while (true) {
-            await page.waitForSelector(nextButtonSelector, { timeout: DEFAULT_TIMEOUT });
-            const paginationText = await page.$eval('.section-pagination-right', (el) => el.innerText);
-            const [fromString, toString] = paginationText.match(/\d+/g);
-            const from = parseInt(fromString);
-            const to = parseInt(toString);
-            if (listingPagination.from && from <= listingPagination.from) {
-                console.log(`Skiped pagination ${from} - ${to}, already done!`);
-            } else {
-                console.log(`Added links from pagination ${from} - ${to}`);
-                await enqueueAllUrlsFromPagination(page, requestQueue);
-                listingPagination = { from, to };
-                await Apify.setValue(LISTING_PAGINATION_KEY, listingPagination);
-            }
-            await page.waitForSelector(nextButtonSelector, { timeout: DEFAULT_TIMEOUT });
-            const isNextPaginationDisabled = await page.evaluate((nextButtonSelector) => {
-                return !!$(nextButtonSelector).attr('disabled');
-            }, nextButtonSelector);
-            const noResultsEl = await page.$('.section-no-result-title');
-            if (isNextPaginationDisabled || noResultsEl) {
-                break;
-            } else {
-                // NOTE: puppeteer API click() didn't work :(
-                await page.evaluate((sel) => $(sel).click(), nextButtonSelector);
-                await waitForGoogleMapLoader(page);
-            }
-        }
-    } catch (err) {
-        if (retries < MAX_PAGE_RETRIES) {
-            ++retries;
-            console.log(`Retiring enqueueAllPlaceDetails for ${retries} time, error:`);
-            console.error(err);
-            await browser.close();
-            await enqueueAllPlaceDetailsCrawler(startUrl, searchString, launchPuppeteerOptions, requestQueue, listingPagination, ++retries);
-        }
-        throw err;
-    } finally {
-        if (browser) await browser.close();
     }
 };
 
