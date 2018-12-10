@@ -8,7 +8,7 @@
       "title": "Search",
       "type": "string",
       "description": "String will be search on Google maps.",
-      "prefill": "pubs new york",
+      "prefill": "pubs near prague 2",
       "editor": "textfield"
     },
     "proxyConfig": {
