@@ -68,18 +68,28 @@ const setUpCrawler = (launchPuppeteerOptions, requestQueue, maxCrawledPlaces) =>
                         const numberReviewsText = $('button.section-reviewchart-numreviews').text().trim();
                         return (numberReviewsText) ? numberReviewsText.match(/\d+/)[0] : null;
                     });
+                    // If we find consent dialog, close it!
+                    if (await page.$('.widget-consent-dialog')) {
+                        await page.click('.widget-consent-dialog .widget-consent-button-later');
+                    }
                     // Get all reviews
+                    await page.waitForSelector('button.section-reviewchart-numreviews')
                     await page.click('button.section-reviewchart-numreviews');
                     await page.waitForSelector('.section-star-display', { timeout: DEFAULT_TIMEOUT });
                     await sleep(5000);
                     // Sort reviews by newest, one click sometimes didn't work :)
-                    await page.click('.section-tab-info-stats-button-flex');
-                    await sleep(1000);
-                    await page.click('.section-tab-info-stats-button-flex');
-                    await sleep(1000);
-                    await page.click('.section-tab-info-stats-button-flex');
-                    await sleep(5000);
-                    await page.click('.context-menu-entry[data-index="1"]');
+                    try {
+                        await page.click('.section-tab-info-stats-button-flex');
+                        await sleep(1000);
+                        await page.click('.section-tab-info-stats-button-flex');
+                        await sleep(1000);
+                        await page.click('.section-tab-info-stats-button-flex');
+                        await sleep(5000);
+                        await page.click('.context-menu-entry[data-index="1"]');
+                    } catch (err) {
+                        // It can happen, it is not big issue
+                        console.log('Cannot select reviews by newest!');
+                    }
                     await infiniteScroll(page, 99999999999, '.section-scrollbox.section-listbox');
                     const reviewEls = await page.$$('div.section-review');
                     for (const reviewEl of reviewEls) {
