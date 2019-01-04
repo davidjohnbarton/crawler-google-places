@@ -18,33 +18,34 @@
       "prefill": { "useApifyProxy": true },
       "editor": "proxy"
     },
-    "maxCrawledPlaces": {
-      "title": "Max crawled places",
-      "type": "integer",
-      "description": "Use to limit places you want to get from crawler. If you fill 0 or nothing all places will be scrape",
-      "minimum": 0
-    },
     "lat": {
-      "title": "Viewport Latitude",
+      "title": "Viewport point latitude",
       "type": "string",
       "description": "Use it with combination with longitude and zoom to set up viewport to search on.",
       "editor": "textfield"
     },
     "lng": {
-      "title": "Viewport Longitude",
+      "title": "Viewport point longitude",
       "type": "string",
       "description": "Use it with combination with latitude and zoom to set up viewport to search on.",
       "editor": "textfield"
     },
     "zoom": {
-      "title": "Viewport Zoom",
+      "title": "Viewport zoom level",
       "type": "integer",
-      "description": "Use it with combination with longitude and latitude to set up viewport to search on.",
+      "description": "Use it with combination with point longitude and latitude to set up viewport to search on. You have whole world on map with zoom level 1.",
       "minimum": 1,
-      "maximum": 15
+      "maximum": 20
+    },
+    "maxCrawledPlaces": {
+      "title": "Max crawled places",
+      "type": "integer",
+      "description": "Use to limit places you want to get from crawler. If you fill 0 or nothing all places will be scrape",
+      "minimum": 0
     }
   },
   "required": [
-    "searchString"
+    "searchString",
+    "proxyConfig"
   ]
 }
