@@ -46,7 +46,7 @@ const extractPlaceDetail = async (page) => {
                 // Finds values from y axis
                 $(this).find('.section-popular-times-bar').each(function (barIndex) {
                     const occupancyMatch = $(this).attr('aria-label').match(/\d+\s+?%/);
-                    if (occupancyMatch) {
+                    if (occupancyMatch && occupancyMatch.length) {
                         const maybeHour = graphStartFromHour + barIndex;
                         graphs[day].push({
                             hour: maybeHour > 24 ? maybeHour - 24 : maybeHour,
