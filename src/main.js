@@ -1,5 +1,6 @@
 const Apify = require('apify');
 const placesCrawler = require('./places_crawler');
+const { proxyCheck } = require('./proxy_check');
 const { log } = Apify.utils;
 
 Apify.main(async () => {
@@ -7,6 +8,11 @@ Apify.main(async () => {
     const { searchString, proxyConfig, lat, lng, maxCrawledPlaces } = input;
 
     if (!searchString) throw new Error('Attribute searchString missing in input.');
+
+    const proxyCheckResult = await proxyCheck(proxyConfig);
+    if (!proxyCheckResult.isPass) {
+        throw new Error(`Proxy error: ${proxyCheckResult.message}`);
+    }
 
     log.info('Scraping Google Places for search string:', searchString);
 

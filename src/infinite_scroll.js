@@ -122,6 +122,7 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
         page.removeAllListeners('request');
         logInfo(`Infinite scroll finished (${stringifyScrollInfo(scrollInfo)} resourcesStats=${JSON.stringify(resourcesStats)})`);
     } catch (err) {
+        // Infinite scroll should not break whole crawler
         logError('An exception thrown in infiniteScroll()', err);
     }
 };
