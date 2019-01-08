@@ -35,10 +35,10 @@ const getPageScrollInfo = (page, elementToScroll) => page.evaluate((elementToScr
 module.exports = async (page, maxHeight, elementToScroll = 'body') => {
     const maybeResourceTypesInfiniteScroll = ['xhr', 'fetch', 'websocket', 'other'];
     const stringifyScrollInfo = (scrollInfo) => {
-        return `scrollTop=${scrollInfo.scrollTop}, ` +
-            `clientHeight=${scrollInfo.clientHeight}, ` +
-            `scrollHeight=${scrollInfo.scrollHeight}, ` +
-            `maxHeight=${maxHeight}`;
+        return `scrollTop=${scrollInfo.scrollTop}, `
+            + `clientHeight=${scrollInfo.clientHeight}, `
+            + `scrollHeight=${scrollInfo.scrollHeight}, `
+            + `maxHeight=${maxHeight}`;
     };
     const defaultScrollDelay = 3000;
     const defaultElementTimeout = 60000;
@@ -72,57 +72,52 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
         }
     });
 
-    try {
-        await page.waitForSelector(elementToScroll, { timeout: defaultElementTimeout });
-        let scrollInfo = await getPageScrollInfo(page, elementToScroll);
-        logInfo(`Infinite scroll started (${stringifyScrollInfo(scrollInfo)}).`);
+    await page.waitForSelector(elementToScroll, { timeout: defaultElementTimeout });
+    let scrollInfo = await getPageScrollInfo(page, elementToScroll);
+    logInfo(`Infinite scroll started (${stringifyScrollInfo(scrollInfo)}).`);
 
-        let previosReviewsCount = 0;
-        while (true) {
-            scrollInfo = await getPageScrollInfo(page, elementToScroll);
+    let previosReviewsCount = 0;
+    while (true) {
+        scrollInfo = await getPageScrollInfo(page, elementToScroll);
 
-            // Forget pending resources that didn't finish loading in time
-            const now = Date.now();
-            const timeout = 30000; // TODO: use resourceTimeout
-            Object.keys(pendingRequests)
-                .forEach((requestId) => {
-                    if (pendingRequests[requestId] + timeout < now) {
-                        delete pendingRequests[requestId];
-                        resourcesStats.forgotten++;
-                    }
-                });
+        // Forget pending resources that didn't finish loading in time
+        const now = Date.now();
+        const timeout = 30000; // TODO: use resourceTimeout
+        Object.keys(pendingRequests)
+            .forEach((requestId) => {
+                if (pendingRequests[requestId] + timeout < now) {
+                    delete pendingRequests[requestId];
+                    resourcesStats.forgotten++;
+                }
+            });
 
-            logDebug(`Infinite scroll stats (${stringifyScrollInfo(scrollInfo)} resourcesStats=${JSON.stringify(resourcesStats)}).`);
+        logDebug(`Infinite scroll stats (${stringifyScrollInfo(scrollInfo)} resourcesStats=${JSON.stringify(resourcesStats)}).`);
 
-            const pendingRequestsCount = resourcesStats.requested - (resourcesStats.finished + resourcesStats.failed + resourcesStats.forgotten);
+        const pendingRequestsCount = resourcesStats.requested - (resourcesStats.finished + resourcesStats.failed + resourcesStats.forgotten);
 
-            // We have to wait if all xhrs are finished
-            if (pendingRequestsCount === 0) {
-                const isLoaderOnPage = await page.evaluate(() => {
-                    const loader = $('.section-loading-spinner');
-                    if (loader) return loader.parent().attr('style') !== 'display: none;';
-                });
+        // We have to wait if all xhrs are finished
+        if (pendingRequestsCount === 0) {
+            const isLoaderOnPage = await page.evaluate(() => {
+                const loader = $('.section-loading-spinner');
+                if (loader) return loader.parent().attr('style') !== 'display: none;';
+            });
 
-                const reviewsCount = await page.evaluate(() => $('div.section-review').length);
-                /**
+            const reviewsCount = await page.evaluate(() => $('div.section-review').length);
+            /**
                  *  If the page is scrolled to the very bottom or beyond
                  *  maximum height and loader is not displayed and we don't find new reviews, we are done.
                  */
-                if (reviewsCount === previosReviewsCount
+            if (reviewsCount === previosReviewsCount
                     && (scrollInfo.scrollTop + scrollInfo.clientHeight >= Math.min(scrollInfo.scrollHeight, maxHeight))
                     && !isLoaderOnPage
-                ) break;
-                previosReviewsCount = reviewsCount;
+            ) break;
+            previosReviewsCount = reviewsCount;
 
-                // Otherwise we try to scroll down
-                await scrollTo(page, elementToScroll, maxHeight);
-            }
-            await sleep(defaultScrollDelay);
+            // Otherwise we try to scroll down
+            await scrollTo(page, elementToScroll, maxHeight);
         }
-        page.removeAllListeners('request');
-        logInfo(`Infinite scroll finished (${stringifyScrollInfo(scrollInfo)} resourcesStats=${JSON.stringify(resourcesStats)})`);
-    } catch (err) {
-        // Infinite scroll should not break whole crawler
-        logError('An exception thrown in infiniteScroll()', err);
+        await sleep(defaultScrollDelay);
     }
+    page.removeAllListeners('request');
+    logInfo(`Infinite scroll finished (${stringifyScrollInfo(scrollInfo)} resourcesStats=${JSON.stringify(resourcesStats)})`);
 };
