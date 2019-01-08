@@ -28,7 +28,7 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue, paginationFrom, 
         log.info(`Added to queue ${url}`);
         if (maxPlacesPerCrawl && paginationFrom + resultIndex + 1 > maxPlacesPerCrawl) {
             log.info(`Reach max places per crawl ${maxPlacesPerCrawl}, stopped enqueuing new places.`);
-            break;
+            return true;
         }
 
         await page.click('.section-back-to-list-button');
@@ -68,6 +68,7 @@ const enqueueAllPlaceDetails = async (page, searchString, requestQueue, maxPlace
 
     // In case there is listing, go through all details, limits with maxPlacesPerCrawl
     const nextButtonSelector = '[jsaction="pane.paginationSection.nextPage"]';
+    let isFinished;
     while (true) {
         await page.waitForSelector(nextButtonSelector, { timeout: DEFAULT_TIMEOUT });
         const paginationText = await page.$eval('.n7lv7yjyC35__right', (el) => el.innerText);
@@ -78,17 +79,17 @@ const enqueueAllPlaceDetails = async (page, searchString, requestQueue, maxPlace
             log.debug(`Skiped pagination ${from} - ${to}, already done!`);
         } else {
             log.debug(`Added links from pagination ${from} - ${to}`);
-            await enqueueAllUrlsFromPagination(page, requestQueue, from, maxPlacesPerCrawl);
+            isFinished = await enqueueAllUrlsFromPagination(page, requestQueue, from, maxPlacesPerCrawl);
             listingPagination.from = from;
             listingPagination.to = to;
             await Apify.setValue(LISTING_PAGINATION_KEY, listingPagination);
         }
-        await page.waitForSelector(nextButtonSelector, { timeout: DEFAULT_TIMEOUT });
+        if (!isFinished) await page.waitForSelector(nextButtonSelector, { timeout: DEFAULT_TIMEOUT });
         const isNextPaginationDisabled = await page.evaluate((nextButtonSelector) => {
             return !!$(nextButtonSelector).attr('disabled');
         }, nextButtonSelector);
         const noResultsEl = await page.$('.section-no-result-title');
-        if (isNextPaginationDisabled || noResultsEl || (maxPlacesPerCrawl && maxPlacesPerCrawl < to)) {
+        if (isNextPaginationDisabled || noResultsEl || (maxPlacesPerCrawl && maxPlacesPerCrawl <= to) || isFinished) {
             break;
         } else {
             // NOTE: puppeteer API click() didn't work :|

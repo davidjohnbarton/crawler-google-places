@@ -119,6 +119,7 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
             }
             await sleep(defaultScrollDelay);
         }
+        page.removeAllListeners('request');
         logInfo(`Infinite scroll finished (${stringifyScrollInfo(scrollInfo)} resourcesStats=${JSON.stringify(resourcesStats)})`);
     } catch (err) {
         logError('An exception thrown in infiniteScroll()', err);
