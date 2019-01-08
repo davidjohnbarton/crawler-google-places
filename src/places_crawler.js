@@ -66,7 +66,7 @@ const extractPlaceDetail = async (page) => {
         detail.totalScore = parseFloat(detail.totalScore.replace(',', '.'));
         detail.reviewsCount = await page.evaluate((selector) => {
             const numberReviewsText = $(selector).text().trim();
-            return (numberReviewsText) ? numberReviewsText.match(/\d+/)[0] : null;
+            return (numberReviewsText) ? parseInt(numberReviewsText.match(/\d+/)[0]) : null;
         }, reviewsButtonSel);
         // If we find consent dialog, close it!
         if (await page.$('.widget-consent-dialog')) {
