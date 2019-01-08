@@ -26,7 +26,7 @@ Apify.main(async () => {
     const launchPuppeteerOptions = {};
     if (proxyConfig) Object.assign(launchPuppeteerOptions, proxyConfig);
 
-    // Scrape all place detail links
+    // Create and run crawler
     const crawler = placesCrawler.setUpCrawler(launchPuppeteerOptions, requestQueue, maxCrawledPlaces);
     await crawler.run();
 

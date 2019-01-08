@@ -9,6 +9,7 @@ const waitForGoogleMapLoader = (page) => page.waitFor(() => !document.querySelec
 const enqueueAllUrlsFromPagination = async (page, requestQueue, paginationFrom, maxPlacesPerCrawl) => {
     let results = await page.$$('.section-result');
     const resultsCount = results.length;
+
     for (let resultIndex = 0; resultIndex < resultsCount; resultIndex++) {
         // Need to get results again, pupptr lost context..
         await page.waitForSelector('.searchbox', { timeout: DEFAULT_TIMEOUT });
@@ -21,6 +22,7 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue, paginationFrom, 
         await link.click();
         await waitForGoogleMapLoader(page);
         await page.waitForSelector('.section-back-to-list-button', { timeout: DEFAULT_TIMEOUT });
+        // After redirection to detail page, save the URL to Request queue to process it later
         const url = page.url();
         await requestQueue.addRequest({ url, userData: { label: 'detail' } });
         log.info(`Added to queue ${url}`);
@@ -28,20 +30,23 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue, paginationFrom, 
             log.info(`Reach max places per crawl ${maxPlacesPerCrawl}, stopped enqueuing new places.`);
             break;
         }
+
         await page.click('.section-back-to-list-button');
     }
 };
 
 /**
- * Crawler add all place detail from listing to queue
+ * Adds all places from listing to queue
  * @param page
  * @param searchString
- * @param launchPuppeteerOptions
  * @param requestQueue
- * @param listingPagination
  * @param maxPlacesPerCrawl
  */
-const enqueueAllPlaceDetailsCrawler = async (page, searchString, launchPuppeteerOptions, requestQueue, listingPagination, maxPlacesPerCrawl) => {
+const enqueueAllPlaceDetails = async (page, searchString, requestQueue, maxPlacesPerCrawl) => {
+    // Save state of listing pagination
+    // NOTE: If pageFunction failed crawler skipped already scraped pagination
+    const listingPagination = await Apify.getValue(LISTING_PAGINATION_KEY) || {};
+
     await page.type('#searchboxinput', searchString);
     await sleep(5000);
     await page.click('#searchbox-searchbutton');
@@ -50,8 +55,9 @@ const enqueueAllPlaceDetailsCrawler = async (page, searchString, launchPuppeteer
     try {
         await page.waitForSelector('h1.section-hero-header-title');
     } catch (e) {
-        // It can happen, doesn't matter :)
+        // It can happen, if there are listing, not just detail page
     }
+
     // In case there is no listing, put just detail page to queue
     const maybeDetailPlace = await page.$('h1.section-hero-header-title');
     if (maybeDetailPlace) {
@@ -59,6 +65,8 @@ const enqueueAllPlaceDetailsCrawler = async (page, searchString, launchPuppeteer
         await requestQueue.addRequest({ url, userData: { label: 'detail' } });
         return;
     }
+
+    // In case there is listing, go through all details, limits with maxPlacesPerCrawl
     const nextButtonSelector = '[jsaction="pane.paginationSection.nextPage"]';
     while (true) {
         await page.waitForSelector(nextButtonSelector, { timeout: DEFAULT_TIMEOUT });
@@ -71,7 +79,8 @@ const enqueueAllPlaceDetailsCrawler = async (page, searchString, launchPuppeteer
         } else {
             log.debug(`Added links from pagination ${from} - ${to}`);
             await enqueueAllUrlsFromPagination(page, requestQueue, from, maxPlacesPerCrawl);
-            listingPagination = { from, to };
+            listingPagination.from = from;
+            listingPagination.to = to;
             await Apify.setValue(LISTING_PAGINATION_KEY, listingPagination);
         }
         await page.waitForSelector(nextButtonSelector, { timeout: DEFAULT_TIMEOUT });
@@ -87,6 +96,9 @@ const enqueueAllPlaceDetailsCrawler = async (page, searchString, launchPuppeteer
             await waitForGoogleMapLoader(page);
         }
     }
+
+    listingPagination.isFinish = true;
+    await Apify.setValue(LISTING_PAGINATION_KEY, listingPagination);
 };
 
-module.exports = { run: enqueueAllPlaceDetailsCrawler };
+module.exports = { enqueueAllPlaceDetails };
