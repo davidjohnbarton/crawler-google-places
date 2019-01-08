@@ -119,9 +119,11 @@ const extractPlaceDetail = async (page) => {
 
     // Extracts place images
     await page.waitForSelector(titleSel, { timeout: DEFAULT_TIMEOUT });
-    const imagesButtonSel = '[jsaction="pane.imagepack.button"]';
-    if (await page.$(imagesButtonSel)) {
-        await page.click(imagesButtonSel);
+    const imagesButtonSel = '.section-image-pack-image-container';
+    const imagesButton = await page.$(imagesButtonSel);
+    if (imagesButton) {
+        await sleep(2000);
+        await imagesButton.click();
         await infiniteScroll(page, 99999999999, '.section-scrollbox.section-listbox');
         detail.imageUrls = await page.evaluate(() => {
             const urls = [];
