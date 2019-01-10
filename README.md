@@ -4,7 +4,7 @@ Get data from Google Places, which official [Google Maps Places API](https://dev
 ## Why?
 You can use official [Google Maps Places API](https://developers.google.com/places/web-service/search), it is better way for the most use cases.
 
-Unlike Google Maps Places API, you can get from crawler:
+Unlike Google Maps Places API you can get from crawler:
 
 - Popular place times histogram (There is no data for that in official API)
 - Place reviews (you can get up to 5 reviews from official API)
