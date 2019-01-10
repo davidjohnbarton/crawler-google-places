@@ -11,7 +11,7 @@ const { enqueueAllPlaceDetails } = require('./enqueue_places_crawler');
  * @param page
  */
 const extractPlaceDetail = async (page) => {
-    // Extracts basic information
+    // Extract basic information
     const titleSel = 'h1.section-hero-header-title';
     await page.waitForSelector(titleSel, { timeout: DEFAULT_TIMEOUT });
     const detail = await page.evaluate(() => {
@@ -24,7 +24,7 @@ const extractPlaceDetail = async (page) => {
         };
     });
 
-    // Extracty histogram for popular times
+    // Extract histogram for popular times
     const histogramSel = '.section-popular-times';
     if (await page.$(histogramSel)) {
         detail.popularTimesHistogram = await page.evaluate(() => {
@@ -59,7 +59,7 @@ const extractPlaceDetail = async (page) => {
         });
     }
 
-    // Extracts reviews
+    // Extract reviews
     detail.reviews = [];
     const reviewsButtonSel = 'button[jsaction="pane.reviewChart.moreReviews"]';
     if (detail.totalScore) {
@@ -117,7 +117,7 @@ const extractPlaceDetail = async (page) => {
         await page.click('button.section-header-back-button');
     }
 
-    // Extracts place images
+    // Extract place images
     await page.waitForSelector(titleSel, { timeout: DEFAULT_TIMEOUT });
     const imagesButtonSel = '.section-image-pack-image-container';
     const imagesButton = await page.$(imagesButtonSel);
@@ -153,8 +153,8 @@ const setUpCrawler = (launchPuppeteerOptions, requestQueue, maxCrawledPlaces) =>
         requestQueue,
         maxRequestRetries: MAX_PAGE_RETRIES,
         retireInstanceAfterRequestCount: 10,
-        handlePageTimeoutSecs: 15 * 60, // 15 min because startUrl enqueueing
-        maxOpenPagesPerInstance: 1, // Because startUrl enqueueing crashes if we mixed tabs with details scraping
+        handlePageTimeoutSecs: 15 * 60, // long timeout, because of startUrl enqueueing
+        maxOpenPagesPerInstance: 1, // Because of startUrl enqueueing crashes if we mix tabs with another scraping
     };
     if (maxCrawledPlaces) {
         crawlerOpts.maxRequestsPerCrawl = maxCrawledPlaces + 1; // The first one is startUrl

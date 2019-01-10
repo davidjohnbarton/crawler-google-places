@@ -2,13 +2,13 @@ const Apify = require('apify');
 const rp = require('request-promise');
 
 /**
- * Check if user some of user proxies work for Google Maps
+ * Check if some of proxies work for Google Maps
  * @param proxyConfig
  */
 const proxyCheck = async (proxyConfig) => {
     const proxy = Apify.getApifyProxyUrl({ groups: proxyConfig.apifyProxyGroups });
 
-    // Check if user used Apify Proxy
+    // Check if user uses Apify Proxy
     if (!proxyConfig.useApifyProxy) {
         return {
             isPass: false,
@@ -44,4 +44,3 @@ const proxyCheck = async (proxyConfig) => {
 module.exports = {
     proxyCheck,
 };
-

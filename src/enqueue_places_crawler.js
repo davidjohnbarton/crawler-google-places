@@ -36,7 +36,7 @@ const enqueueAllUrlsFromPagination = async (page, requestQueue, paginationFrom, 
 };
 
 /**
- * Adds all places from listing to queue
+ * Method adds places from listing to queue
  * @param page
  * @param searchString
  * @param requestQueue
@@ -55,10 +55,10 @@ const enqueueAllPlaceDetails = async (page, searchString, requestQueue, maxPlace
     try {
         await page.waitForSelector('h1.section-hero-header-title');
     } catch (e) {
-        // It can happen, if there are listing, not just detail page
+        // It can happen if there is list of details.
     }
 
-    // In case there is no listing, put just detail page to queue
+    // In case there is not list of details, it enqueues just detail page
     const maybeDetailPlace = await page.$('h1.section-hero-header-title');
     if (maybeDetailPlace) {
         const url = page.url();
@@ -66,7 +66,7 @@ const enqueueAllPlaceDetails = async (page, searchString, requestQueue, maxPlace
         return;
     }
 
-    // In case there is listing, go through all details, limits with maxPlacesPerCrawl
+    // In case there is a list of details, it goes through details, limits by maxPlacesPerCrawl
     const nextButtonSelector = '[jsaction="pane.paginationSection.nextPage"]';
     let isFinished;
     while (true) {
