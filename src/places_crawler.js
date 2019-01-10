@@ -154,7 +154,7 @@ const setUpCrawler = (launchPuppeteerOptions, requestQueue, maxCrawledPlaces) =>
         maxRequestRetries: MAX_PAGE_RETRIES,
         retireInstanceAfterRequestCount: 10,
         handlePageTimeoutSecs: 15 * 60, // long timeout, because of startUrl enqueueing
-        maxOpenPagesPerInstance: 1, // Because of startUrl enqueueing crashes if we mix tabs with another scraping
+        maxOpenPagesPerInstance: 1, // because of startUrl enqueueing crashes if we mix tabs with another scraping
     };
     if (maxCrawledPlaces) {
         crawlerOpts.maxRequestsPerCrawl = maxCrawledPlaces + 1; // The first one is startUrl

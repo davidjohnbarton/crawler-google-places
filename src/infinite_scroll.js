@@ -2,7 +2,6 @@ const Apify = require('apify');
 
 const { sleep, log } = Apify.utils;
 
-const logError = (msg, e) => log.exception(e, msg);
 const logInfo = (msg) => log.info(msg);
 const logDebug = (msg) => log.debug(msg);
 
@@ -76,7 +75,7 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
     let scrollInfo = await getPageScrollInfo(page, elementToScroll);
     logInfo(`Infinite scroll started (${stringifyScrollInfo(scrollInfo)}).`);
 
-    let previosReviewsCount = 0;
+    let previousReviewsCount = 0;
     while (true) {
         scrollInfo = await getPageScrollInfo(page, elementToScroll);
 
@@ -104,14 +103,14 @@ module.exports = async (page, maxHeight, elementToScroll = 'body') => {
 
             const reviewsCount = await page.evaluate(() => $('div.section-review').length);
             /**
-                 *  If the page is scrolled to the very bottom or beyond
-                 *  maximum height and loader is not displayed and we don't find new reviews, we are done.
-                 */
-            if (reviewsCount === previosReviewsCount
+             *  If the page is scrolled to the very bottom or beyond
+             *  maximum height and loader is not displayed and we don't find new reviews, we are done.
+             */
+            if (reviewsCount === previousReviewsCount
                     && (scrollInfo.scrollTop + scrollInfo.clientHeight >= Math.min(scrollInfo.scrollHeight, maxHeight))
                     && !isLoaderOnPage
             ) break;
-            previosReviewsCount = reviewsCount;
+            previousReviewsCount = reviewsCount;
 
             // Otherwise we try to scroll down
             await scrollTo(page, elementToScroll, maxHeight);

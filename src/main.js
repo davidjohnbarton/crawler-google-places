@@ -1,11 +1,12 @@
 const Apify = require('apify');
 const placesCrawler = require('./places_crawler');
+const resultJsonSchema = require('./result_item_schema');
 const { proxyCheck } = require('./proxy_check');
 const { log } = Apify.utils;
 
 Apify.main(async () => {
     const input = await Apify.getValue('INPUT');
-    const { searchString, proxyConfig, lat, lng, maxCrawledPlaces } = input;
+    const { searchString, proxyConfig, lat, lng, maxCrawledPlaces, regularTestRun } = input;
 
     if (!searchString) throw new Error('Attribute searchString missing in input.');
 
@@ -35,6 +36,18 @@ Apify.main(async () => {
     // Create and run crawler
     const crawler = placesCrawler.setUpCrawler(launchPuppeteerOptions, requestQueue, maxCrawledPlaces);
     await crawler.run();
+
+    if (regularTestRun) {
+        const { defaultDatasetId: datasetId } = Apify.getEnv();
+        await Apify.call('drobnikj/check-crawler-results', {
+            datasetId,
+            options: {
+                minOutputtedPages: 5,
+                jsonSchema: resultJsonSchema,
+                notifyTo: 'jakub.drobnik@apify.com',
+            },
+        });
+    }
 
     log.info('Done!');
 });

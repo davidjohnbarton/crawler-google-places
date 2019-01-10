@@ -1,0 +1,250 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "object",
+  "title": "The Root Schema",
+  "required": [
+    "title",
+    "totalScore",
+    "categoryName",
+    "address",
+    "plusCode",
+    "reviews",
+    "reviewsCount",
+    "imageUrls",
+    "url"
+  ],
+  "properties": {
+    "title": {
+      "$id": "#/properties/title",
+      "type": "string",
+      "title": "The Title Schema",
+      "default": "",
+      "examples": [
+        "Bank DLR Station"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "totalScore": {
+      "$id": "#/properties/totalScore",
+      "type": "number",
+      "title": "The Totalscore Schema",
+      "default": 0.0,
+      "examples": [
+        3.4
+      ]
+    },
+    "categoryName": {
+      "$id": "#/properties/categoryName",
+      "type": "string",
+      "title": "The Categoryname Schema",
+      "default": "",
+      "examples": [
+        "Stanice úzkokolejné dráhy"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "address": {
+      "$id": "#/properties/address",
+      "type": "string",
+      "title": "The Address Schema",
+      "default": "",
+      "examples": [
+        "Cornhill, London EC3V 3NR, Velká Británie"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "plusCode": {
+      "$id": "#/properties/plusCode",
+      "type": "string",
+      "title": "The Pluscode Schema",
+      "default": "",
+      "examples": [
+        "GW76+6H City, London, Velká Británie"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "reviews": {
+      "$id": "#/properties/reviews",
+      "type": "array",
+      "title": "The Reviews Schema",
+      "items": {
+        "$id": "#/properties/reviews/items",
+        "type": "object",
+        "title": "The Items Schema",
+        "required": [
+          "name",
+          "text",
+          "stars",
+          "publishAt",
+          "likesCount",
+          "responseFromOwnerText"
+        ],
+        "properties": {
+          "name": {
+            "$id": "#/properties/reviews/items/properties/name",
+            "type": "string",
+            "title": "The Name Schema",
+            "default": "",
+            "examples": [
+              "selion shkenza"
+            ],
+            "pattern": "^(.*)$"
+          },
+          "text": {
+            "$id": "#/properties/reviews/items/properties/text",
+            "type": "string",
+            "title": "The Text Schema",
+            "default": "",
+            "examples": [
+              ""
+            ],
+            "pattern": "^(.*)$"
+          },
+          "stars": {
+            "$id": "#/properties/reviews/items/properties/stars",
+            "type": "string",
+            "title": "The Stars Schema",
+            "default": "",
+            "examples": [
+              "4 hvězdičky"
+            ],
+            "pattern": "^(.*)$"
+          },
+          "publishAt": {
+            "$id": "#/properties/reviews/items/properties/publishAt",
+            "type": "string",
+            "title": "The Publishat Schema",
+            "default": "",
+            "examples": [
+              "před týdnem"
+            ],
+            "pattern": "^(.*)$"
+          },
+          "likesCount": {
+            "$id": "#/properties/reviews/items/properties/likesCount",
+            "type": "string",
+            "title": "The Likescount Schema",
+            "default": "",
+            "examples": [
+              ""
+            ],
+            "pattern": "^(.*)$"
+          },
+          "responseFromOwnerText": {
+            "$id": "#/properties/reviews/items/properties/responseFromOwnerText",
+            "type": "string",
+            "title": "The Responsefromownertext Schema",
+            "default": "",
+            "examples": [
+              ""
+            ],
+            "pattern": "^(.*)$"
+          }
+        }
+      }
+    },
+    "reviewsCount": {
+      "$id": "#/properties/reviewsCount",
+      "type": "integer",
+      "title": "The Reviewscount Schema",
+      "default": 0,
+      "examples": [
+        84
+      ]
+    },
+    "imageUrls": {
+      "$id": "#/properties/imageUrls",
+      "type": "array",
+      "title": "The Imageurls Schema",
+      "items": {
+        "$id": "#/properties/imageUrls/items",
+        "type": "string",
+        "title": "The Items Schema",
+        "default": "",
+        "examples": [
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Bankwbankofengland.jpg/250px-Bankwbankofengland.jpg",
+          "https://lh5.googleusercontent.com/p/AF1QipNvg2r-Qtsf763s8Lj739j2Y7YcDbv2Pn8W7SgC=s429-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipN5fE52t8nJxVe9jQNBChOMc8wfQ_XkonjlpJAD=s1056-k-no-pi-10.949902-ya22.500002-ro0-fo100",
+          "https://lh5.googleusercontent.com/p/AF1QipM26i-WtnjwdKx6m9w1a0QZxhpmQhoSguiLeW9d=s1056-k-no-pi-21.489584-ya277.58334-ro0-fo100",
+          "https://lh5.googleusercontent.com/p/AF1QipMe61_YMCRe8Nh_BOu7mpk066C3f4ObxwVddYxI=s553-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipOnBW_96gk4yOCUl72HdvBSBB5cfYDV4u1rjbel=s312-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipN9xcqOJgfgv48gMAbw5fVy3ptLCg1YsrGSplow=s1056-k-no-pi-28.124998-ya301.67706-ro0-fo100",
+          "https://lh5.googleusercontent.com/p/AF1QipOTzEjwj6uGo8LhhDP0D9IOs92uTZPFQrjyjhnu=s1056-k-no-pi-16.315458-ya275.4129-ro-3.2435107-fo100",
+          "https://lh5.googleusercontent.com/p/AF1QipMDovdM-0DVbXrMDgW_Zpt6DV8wEt4VXAyZg87-=s378-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipMpXC2H5gPDnNTxAPIWweY_KiZ7a6ul5woEUs2P=s504-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipNtFYrNlCak7skLIAX7XPLysdBFC7I_Ymhh_AXl=s1056-k-no-pi0-ya277.5-ro0-fo100",
+          "https://lh5.googleusercontent.com/p/AF1QipMVhYopcr2KJc8FGHqS7xh1vmlib-_g9ojJmFeD=s792-k-no",
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Bankwbankofengland.jpg/280px-Bankwbankofengland.jpg",
+          "https://lh5.googleusercontent.com/p/AF1QipMzkYuzRS0bija8AHXbz96NGbPYJqxR4exmwVti=s429-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipMbrVMaGk6eaJCEIpCJVduUEpoR93kule721plf=s1056-k-no-pi-26.666666-ya154.59375-ro0-fo100",
+          "https://lh5.googleusercontent.com/p/AF1QipOEYIPZY-stihaZ1urLMfj46a1Q1fJWWuU5G2CP=s312-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipMM1xV1YW4baOA7tSlzsgFbNh_bOcS9X9fNUYOg=s554-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipOS60FjDOTc1UR28D74-tRGcl5ZBL_hLlXAHlcJ=s1056-k-no-pi-9.822917-ya129.01044-ro0-fo100",
+          "https://lh5.googleusercontent.com/p/AF1QipMMe7P3Vqt55sHWLrmb3uw0h_jj-JS4eC_Umtgw=s700-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipPxxpoC6cU6LIZQQamfPaoQURTQFdK4rdmH3jnC=s700-k-no",
+          "https://c7.alamy.com/compes/eamy4d/la-estacion-de-metro-de-banco-ciudad-de-londres-reino-unido-eamy4d.jpg",
+          "https://lh5.googleusercontent.com/p/AF1QipP2gh4XzRdq680lkQR6epsQbHiE1rg5NbyYlFtX=s400-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipNPn04F7IZzusE5kkbkp2lN5iTX4gTs7HDpyMxy=s792-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipPhwHHfdov2yHM-0DhpBTc3-Z2cr0p2QhpImfM=s1056-k-no-pi-13.614583-ya231.11461-ro0-fo100",
+          "https://lh5.googleusercontent.com/p/AF1QipNfEr2GSCNrRBAGFeN-awjX3w4cJJP-6qv0zfoj=s1056-k-no",
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/City_of_London_arms_at_Bank_station.JPG/250px-City_of_London_arms_at_Bank_station.JPG",
+          "https://lh5.googleusercontent.com/p/AF1QipPVO1I7UGvUjjRaZ8wY4VYFu1SkOgaq4i9a8hqg=s507-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipNHMiaBFc-SjbhXvj4WzOZN3MBwdkSwbR6pdKRF=s1056-k-no-pi-22.297846-ya177.4561-ro-0.10955643-fo100",
+          "https://lh5.googleusercontent.com/p/AF1QipOf1Mvt84IX0hQgkKO5-3mDRCHqhePUa7pEh2ZR=s338-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipPizBCMxmGkgBP4C1NY1G-0T3FHZyDjzqyPbSpc=s451-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipPcwZHykJQy-2ZsjUj85VavnwoDiWGFsmd0sJJS=s792-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipNnPYABVVjBm-R3feClWKjldxI5qJgi4ROkjcLE=s395-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipMIhOEPUTrQhBKTE76sVoQbI3p3_1SEkHLV77XI=s395-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipOeXhmlI5CV8dGQUTA5oFrukCHJaEN6193crtHO=s790-k-no",
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Bankwbankofengland.jpg/220px-Bankwbankofengland.jpg",
+          "https://lh5.googleusercontent.com/p/AF1QipOql79vIzrePHpilg4y5RDlIQQTtC5SxOIzXqNp=s429-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipOwsSkPYWVuhNdpxYj4A25Hd5-A6Z0PLIA6ihXl=s792-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipPT6CSUCJtyfMOenTaxQ0KIXxmQIjF9Y1KeiO7g=s504-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipPWuFfYtNO3Nmj8I240_XYgV0vOHQzveC_YWMnV=s378-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipPsLY1uqtZuJ3XLXoe3wsnKds_vopx2xdIkNmuu=s190-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipO6568-hKAna0YkztNhv3k7AakE78FiGMVCaqe2=s290-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipO5R_6w9i3gjGtDFS7q5XlrPgod13lqWinpUHRy=s645-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipPlWgChBoSWVB8QZeSy5Ov7k48TQsIP_6nl203S=s452-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipOjtTDA6gnx_Ou50Sj1XkfQvMWzcos6vJvhapIg=s339-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipPLzc6JFM8aRAKxASxNoAf_2EAoXLypdIwmEgTr=s394-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipP1QZieXU6jynzlz2GPdvy0f7HHAYtDS6nHD8Sa=s392-k-no",
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Bank_Tube_Station.jpg/240px-Bank_Tube_Station.jpg",
+          "https://lh5.googleusercontent.com/p/AF1QipO1bJfpO3ycyffF2Fa9W-ITeToIYvKNjcX6Dhk=s688-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipPDRRRxG63uSeBTaRpfVzYi9nLKe4iD-R9jVQJR=s267-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipOiMqKWgSegg1lJwzAPyJHeVOvv-f-tEIHoLKYY=s333-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipM_rozyQWGD8PZ5xBHmvh5WGpM6wC6xMdJT-2-w=s453-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipN8wVq1JjC5tAqfWXT7Pa_dhCiGszEhbS_N0HpX=s504-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipMIFKdF8yTSglvxGSzTnD0uKRelpYVVXtkCieWw=s378-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipMgnchxTukvmFTvcGemcyaamHn0YqAC-1bHbYq4=s792-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipP5RyjKq6Lmsxps7cx2xS6tRLu_rFYGFAghDmCr=s526-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipM-41Ei5_Jxpzqx7excrU8SJNxfOqcN4_z3zuBW=s526-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipOsR6U39vo-iR4KkbUscaAStFPnwIMQ6s94nrpE=s522-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipMWmt7zfzBpBP4qzr1St4p3kmJH8CHjFcP7xoFd=s395-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipP6xGDmvADIm7qgaQPB52HggI-NT1eUjEkACUKV=s395-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipOX8Xlg2RR7jCoHC5FMSRrfSP9alDbfo1P2KvaO=s792-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipNZ0WfoBq7DUm1Fe0PX8GlK_7k5WXxgIRElGUhn=s525-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipMl2Zo22ebfOqSkywf90OTavKhlonWX0DqFCuoN=s350-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipM-xPa3Lxayw3d19iRmDCvdGJGwQE1LCs3QmIic=s525-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipPjxOH0k4S2Xwx2tEODSl-ww8v9z1hUXyDeildV=s350-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipOG2wkagJbVMk9T_3--pSQcMkVg_ZBLsUA1gopN=s792-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipPPzQBdvA6VUDtshoDlVImog56lrsK4u6oobVw4=s339-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipMyrPDDLnXFkOcZhrYLoeY9i1CWTxkLXWXIo15P=s312-k-no",
+          "https://lh5.googleusercontent.com/p/AF1QipOlvraSBZXdmrq8n7CG9m82EARhCt222FwA-3dj=s555-k-no"
+        ],
+        "pattern": "^(.*)$"
+      }
+    },
+    "url": {
+      "$id": "#/properties/url",
+      "type": "string",
+      "title": "The Url Schema",
+      "default": "",
+      "examples": [
+        "https://www.google.com/maps/place/Bank+DLR+Station/@51.5131071,-0.0907444,17z/data=!3m1!4b1!4m5!3m4!1s0x487603549b941c59:0xfa641eadd72bb1e2!8m2!3d51.5131071!4d-0.0885557"
+      ],
+      "pattern": "^(.*)$"
+    }
+  }
+}
